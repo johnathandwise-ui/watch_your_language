@@ -80,17 +80,18 @@ class LanguageSelectorScreen extends StatelessWidget {
       ),
     );
   }
-  // ============================================================================
+   // ============================================================================
   // WATCH YOUR LANGUAGE // PART 2 OF 5: OUTLINED LOGO & SHADOW GRID BUILDERS
   // ============================================================================
   Widget _buildMetallicLogoHeaderUnit() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Layer 1: "Watch-Your" with stacked text layers to build a tight 2pt gold outline
+        // Layer 1: "Watch-Your" with a tight 1.5pt metallic gold stroke and a rich crimson shadow
         Stack(
+          alignment: Alignment.center,
           children: [
-            // Gold outline background layer (2pt thickness simulation)
+            // Underlying Gold Stroke Rim Layer
             Text(
               "Watch-Your",
               textAlign: TextAlign.center,
@@ -101,14 +102,14 @@ class LanguageSelectorScreen extends StatelessWidget {
                 letterSpacing: -0.5,
                 foreground: Paint()
                   ..style = PaintingStyle.stroke
-                  ..strokeWidth = 4.0 // 2pt on each side forms the outline container
-                  ..color = const Color(0xFFFFD700),
+                  ..strokeWidth = 1.5 // Sharp outline thickness prevents letter clogging
+                  ..color = const Color(0xFFD4AF37), // Metallic gold signature tone
                 shadows: [
                   Shadow(offset: const Offset(0, 5), blurRadius: 15, color: Colors.red.shade900.withOpacity(0.95)),
                 ],
               ),
             ),
-            // Solid white core font layer foreground
+            // Floating Pure White Inner Text Face Layer
             const Text(
               "Watch-Your",
               textAlign: TextAlign.center,
@@ -123,10 +124,11 @@ class LanguageSelectorScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 2),
-        // Layer 2: "Language" matching the exact outline stroke configuration
+        // Layer 2: "Language" with matching balanced border spacing parameters
         Stack(
+          alignment: Alignment.center,
           children: [
-            // Gold outline background layer
+            // Underlying Gold Stroke Rim Layer
             Text(
               "Language",
               textAlign: TextAlign.center,
@@ -137,14 +139,14 @@ class LanguageSelectorScreen extends StatelessWidget {
                 letterSpacing: -0.5,
                 foreground: Paint()
                   ..style = PaintingStyle.stroke
-                  ..strokeWidth = 4.0
-                  ..color = const Color(0xFFFFD700),
+                  ..strokeWidth = 1.5
+                  ..color = const Color(0xFFD4AF37),
                 shadows: [
                   Shadow(offset: const Offset(0, 5), blurRadius: 15, color: Colors.red.shade900.withOpacity(0.95)),
                 ],
               ),
             ),
-            // Solid white core font layer foreground
+            // Floating Pure White Inner Text Face Layer
             const Text(
               "Language",
               textAlign: TextAlign.center,
@@ -217,6 +219,7 @@ class LanguageSelectorScreen extends StatelessWidget {
     );
   }
 }
+
 // ============================================================================
 // WATCH YOUR LANGUAGE // PART 3 OF 5: GAME STATE MACHINE & HARDWARE ENGINE
 // ============================================================================
