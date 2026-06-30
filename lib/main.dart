@@ -499,7 +499,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 // ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 2: TALL CARD FRAME & HEAR AGAIN
+// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 2: GIANT FLASHCARD & CONTRAST BUTTONS
 // ============================================================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord) {
     return Column(
@@ -528,7 +528,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           ),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 96),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 140), // 140 vertical padding expands the box drastically
             decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
             child: _isDelayActive 
                 ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
@@ -572,15 +572,31 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             Expanded(
               child: Container(
                 height: 54,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12), 
+                  gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.4), // White blurred backdrop drop shadow
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent, 
+                    shadowColor: Colors.transparent, 
+                    foregroundColor: Colors.black, // High-contrast black button icon text face
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                   onPressed: _isDelayActive ? null : () {
                     _executeVoicePronunciationEngine(activeCueWord);
                     _triggerAdRefresherIncrement();
                   },
-                  icon: const Icon(Icons.volume_up, size: 18),
-                  label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.1)),
+                  icon: const Icon(Icons.volume_up, size: 18, color: Colors.black),
+                  label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1)),
                 ),
               ),
             ),
@@ -588,14 +604,30 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             Expanded(
               child: Container(
                 height: 54,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12), 
+                  gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.4), // White blurred backdrop drop shadow
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent, 
+                    shadowColor: Colors.transparent, 
+                    foregroundColor: Colors.black, // High-contrast black button font face
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                   onPressed: _isDelayActive ? null : () {
                     _advanceWordIndexTrackerOrRouteNext();
                     _triggerAdRefresherIncrement();
                   },
-                  child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.1)),
+                  child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
                 ),
               ),
             ),
@@ -604,6 +636,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ],
     );
   }
+
 // ============================================================================
 // WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 3: FULL SENTENCE CANVAS
 // ============================================================================
