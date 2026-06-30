@@ -290,7 +290,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     if (!mounted) return;
     setState(() { _isDelayActive = true; });
     Timer(const Duration(milliseconds: 1200), () {
-      if (mounted) { setState(() { _isDelayActive = false; }); }
+      if (mounted) { 
+        setState(() { _isDelayActive = false; }); 
+        
+        // Robust Audio Fallback Trigger: Fetches and forcefully fires target pronunciation
+        final String activeCueWord = _currentFlashcardWord.isNotEmpty 
+            ? _currentFlashcardWord[currentWordIndex] 
+            : "";
+            
+        if (activeCueWord.isNotEmpty && activeCueWord != "LOADING...") {
+          // Wrap in a short future microtask track to ensure web browser audio thread context is active
+          Future.microtask(() => _executeVoicePronunciationEngine(activeCueWord));
+        }
+      }
     });
   }
 
