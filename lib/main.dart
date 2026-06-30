@@ -332,7 +332,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     }
     
     // 🛡️ True Gen 1 cloud backend function absolute target destination URL
-    const String completeBackendLiveUrl = "https://cloudfunctions.net";
+    const String completeBackendLiveUrl = "https://us-central1-gen-lang-client-0551559755.cloudfunctions.net/generate-script";
     
     try {
       final String freshCallSeedToken = DateTime.now().millisecondsSinceEpoch.toString();

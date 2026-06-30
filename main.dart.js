@@ -62228,7 +62228,7 @@ var $async$n2=A.T(function(a1,a2){if(a1===1){o=a2
 s=p}while(true)switch(s){case 0:if(n.c!=null)n.ab(new A.a2Q(n))
 p=4
 m=B.f.j(Date.now())
-e=A.pn("https://cloudfunctions.net")
+e=A.pn("https://us-central1-gen-lang-client-0551559755.cloudfunctions.net/generate-script")
 d=t.N
 c=A.Z(["Content-Type","application/json","Accept","application/json"],d,d)
 s=7
