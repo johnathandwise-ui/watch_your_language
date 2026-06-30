@@ -306,13 +306,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 
-  void _advanceWordIndexTrackerOrRouteNext() {
+   void _advanceWordIndexTrackerOrRouteNext() {
     if (!mounted) return;
     if (currentWordIndex < _currentFlashcardWord.length - 1) {
       setState(() { currentWordIndex++; });
       _startCueCardCacheImpressionTimer(); // Trigger impression buffer delay for next card
     } else {
       setState(() { isRehearsalPhase = false; isFullSentencePhase = true; });
+      // 🛡️ Bypasses browser autoplay limits by firing the full sentence text context on user tap
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _executeVoicePronunciationEngine(compiledForeignSentence);
+      });
     }
   }
 
@@ -638,10 +642,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
 // ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 3: FULL SENTENCE CANVAS
+// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 3: HIGH CONTRAST FULL SENTENCE CANVAS
 // ============================================================================
   Widget _buildFullSentencePresentationScreen() {
-    // Locate the active country colors matching the current language stream
     final List<Map<String, dynamic>> countryGridMap = [
       {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
       {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]},
@@ -700,39 +703,79 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56),
                           decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
-                          child: Text(compiledForeignSentence, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            compiledForeignSentence, 
+                            textAlign: TextAlign.center, 
+                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 48), // Spacing matches the cue card buttons distance layout
+                      
                       Row(
                         children: [
+                          // Hear Again Button with white blurred backdrop glow and black text
                           Expanded(
                             child: Container(
                               height: 54,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12), 
+                                gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withOpacity(0.4),
+                                    blurRadius: 12,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
                               child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent, 
+                                  shadowColor: Colors.transparent, 
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                                ),
                                 onPressed: () {
                                   _executeVoicePronunciationEngine(compiledForeignSentence);
                                   _triggerAdRefresherIncrement();
                                 },
-                                icon: const Icon(Icons.volume_up, size: 20),
-                                label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.1)),
+                                icon: const Icon(Icons.volume_up, size: 18, color: Colors.black),
+                                label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1)),
                               ),
                             ),
                           ),
                           const SizedBox(width: 12),
+                          
+                          // Your Turn Button with matching white blurred backdrop glow and black text
                           Expanded(
                             child: Container(
                               height: 54,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12), 
+                                gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withOpacity(0.4),
+                                    blurRadius: 12,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
                               child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent, 
+                                  shadowColor: Colors.transparent, 
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                                ),
                                 onPressed: () {
                                   setState(() { isFullSentencePhase = false; isRecordingPhase = true; });
                                   _startRecordingCountdownSequence();
                                 },
-                                child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.1)),
+                                child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
                               ),
                             ),
                           ),
