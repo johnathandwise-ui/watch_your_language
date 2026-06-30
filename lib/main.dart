@@ -240,7 +240,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool isFullSentencePhase = false;
   bool isRecordingPhase = false;
   bool isPlaybackReviewPhase = false;
-  bool _isDelayActive = false; // Synchronized state tracking boolean for ad view
+  bool _isDelayActive = false; // Manages the 1.2-second ad visibility window layer
   
   String finalEnglishMeaning = "";
   String compiledForeignSentence = "";
@@ -305,7 +305,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
 // ============================================================================
-// WATCH YOUR LANGUAGE // PART 4 OF 5: CLOUD PROXY GATEWAY & PROMPT RECOVERY
+// WATCH YOUR LANGUAGE // PART 4 OF 5: NETWORKING PROTECTION & LOCAL AUTOMATION
 // ============================================================================
   void _generateAutomatedComedyScript() async {
     if (mounted) {
@@ -354,7 +354,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 isLoading = false;
                 isRehearsalPhase = true;
               });
-              _startCueCardCacheImpressionTimer(); // Lock card display to start the 1.2s ad timer
+              _startCueCardCacheImpressionTimer(); // Start the 1.2s ad view delay
             }
             return;
           }
@@ -382,7 +382,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     ];
     
     final Map<String, String> chosenPair = localBackupVault[rand.nextInt(localBackupVault.length)];
-    final List<String> computedWords = chosenPair["foreign"]!.split(" ");
+    final List<String> computedWords = chosenPair["foreign"]!.split(" ").where((String w) {
+      return w.trim().isNotEmpty;
+    }).toList();
     
     if (mounted) {
       setState(() {
@@ -393,7 +395,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         isLoading = false;
         isRehearsalPhase = true;
       });
-      _startCueCardCacheImpressionTimer(); // Lock card display to start the 1.2s ad timer
+      _startCueCardCacheImpressionTimer();
     }
   }
 
