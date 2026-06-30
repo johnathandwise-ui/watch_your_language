@@ -338,10 +338,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     const String fullAssembledProxyUrl = "$urlProtocol$urlServiceIdentifier$urlUniqueTokenHash$urlServerDomainPath";
     
     try {
+      // ⏱️ Create a dynamic timestamp key token to scramble the AI's internal path variables
+      final String freshCallSeedToken = DateTime.now().millisecondsSinceEpoch.toString();
+
       final http.Response response = await http.post(
         Uri.parse(fullAssembledProxyUrl),
         headers: {"Content-Type": "application/json", "Accept": "application/json"},
-        body: json.encode({"language": widget.languageName}),
+        body: json.encode({
+          "language": widget.languageName,
+          "seed": freshCallSeedToken // Stream unique numeric fingerprints on every user tap
+        }),
       ).timeout(const Duration(seconds: 12));
 
       if (response.statusCode == 200) {
@@ -367,7 +373,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 isLoading = false;
                 isRehearsalPhase = true;
               });
-              _startCueCardCacheImpressionTimer(); // Start the 1.2s ad view delay
+              _startCueCardCacheImpressionTimer();
             }
             return;
           }
