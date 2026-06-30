@@ -306,16 +306,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 
-   void _advanceWordIndexTrackerOrRouteNext() {
+     void _advanceWordIndexTrackerOrRouteNext() {
     if (!mounted) return;
     if (currentWordIndex < _currentFlashcardWord.length - 1) {
       setState(() { currentWordIndex++; });
       _startCueCardCacheImpressionTimer(); // Trigger impression buffer delay for next card
     } else {
       setState(() { isRehearsalPhase = false; isFullSentencePhase = true; });
-      // 🛡️ Bypasses browser autoplay limits by firing the full sentence text context on user tap
-      Future.delayed(const Duration(milliseconds: 300), () {
-        _executeVoicePronunciationEngine(compiledForeignSentence);
+      
+      // 🛡️ State-Safe Delayed Hook: Pushes the audio call safely past Flutter's layout paint cycles
+      Timer(const Duration(milliseconds: 600), () {
+        if (mounted && isFullSentencePhase) {
+          _executeVoicePronunciationEngine(compiledForeignSentence);
+        }
       });
     }
   }
