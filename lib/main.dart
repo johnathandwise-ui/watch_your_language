@@ -307,20 +307,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 
-     void _advanceWordIndexTrackerOrRouteNext() {
+      void _advanceWordIndexTrackerOrRouteNext() {
     if (!mounted) return;
     if (currentWordIndex < _currentFlashcardWord.length - 1) {
       setState(() { currentWordIndex++; });
       _startCueCardCacheImpressionTimer(); // Trigger impression buffer delay for next card
     } else {
       setState(() { isRehearsalPhase = false; isFullSentencePhase = true; });
-      
-      // 🛡️ State-Safe Delayed Hook: Pushes the audio call safely past Flutter's layout paint cycles
-      Timer(const Duration(milliseconds: 600), () {
-        if (mounted && isFullSentencePhase) {
-          _executeVoicePronunciationEngine(compiledForeignSentence);
-        }
-      });
     }
   }
 
@@ -644,9 +637,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ],
     );
   }
-
 // ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 3: HIGH CONTRAST FULL SENTENCE CANVAS
+// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 3: AUTOPLAY FULL SENTENCE CANVAS
 // ============================================================================
   Widget _buildFullSentencePresentationScreen() {
     final List<Map<String, dynamic>> countryGridMap = [
@@ -666,6 +658,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       orElse: () => {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
     );
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+
+    // 🛡️ Lifecycle Hook Trigger: Force-executes speech layout synchronization immediately on UI frame paint
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && isFullSentencePhase) {
+        _executeVoicePronunciationEngine(compiledForeignSentence);
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -714,11 +713,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 48), // Spacing matches the cue card buttons distance layout
-                      
+                      const SizedBox(height: 48),
                       Row(
                         children: [
-                          // Hear Again Button with white blurred backdrop glow and black text
                           Expanded(
                             child: Container(
                               height: 54,
@@ -751,8 +748,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          
-                          // Your Turn Button with matching white blurred backdrop glow and black text
                           Expanded(
                             child: Container(
                               height: 54,
