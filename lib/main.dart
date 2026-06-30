@@ -318,7 +318,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
 // ============================================================================
-// WATCH YOUR LANGUAGE // PART 4 OF 5: NETWORKING PROTECTION & LOCAL AUTOMATION
+// WATCH YOUR LANGUAGE // PART 4 OF 5: NETWORKING PROXIES & BACKUP VALUTS
 // ============================================================================
   void _generateAutomatedComedyScript() async {
     if (mounted) {
@@ -331,22 +331,18 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       });
     }
     
-    const String urlProtocol = "https://";
-    const String urlServiceIdentifier = "generate-script-";
-    const String urlUniqueTokenHash = "t3yutwgarq-uc";
-    const String urlServerDomainPath = ".a.run.app";
-    const String fullAssembledProxyUrl = "$urlProtocol$urlServiceIdentifier$urlUniqueTokenHash$urlServerDomainPath";
+    // 🛡️ True Gen 1 cloud backend function absolute target destination URL
+    const String completeBackendLiveUrl = "https://cloudfunctions.net";
     
     try {
-      // ⏱️ Create a dynamic timestamp key token to scramble the AI's internal path variables
       final String freshCallSeedToken = DateTime.now().millisecondsSinceEpoch.toString();
 
       final http.Response response = await http.post(
-        Uri.parse(fullAssembledProxyUrl),
+        Uri.parse(completeBackendLiveUrl),
         headers: {"Content-Type": "application/json", "Accept": "application/json"},
         body: json.encode({
           "language": widget.languageName,
-          "seed": freshCallSeedToken // Stream unique numeric fingerprints on every user tap
+          "seed": freshCallSeedToken
         }),
       ).timeout(const Duration(seconds: 12));
 
@@ -356,8 +352,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         
         if (rawTextPayload.contains("--")) {
           final List<String> segments = rawTextPayload.split("--");
-          final String finalForeign = segments[0].trim().replaceAll('"', '');
-          final String finalEnglish = segments[1].trim().replaceAll('"', '');
+          final String finalForeign = segments.first.trim().replaceAll('"', '');
+          final String finalEnglish = segments.last.trim().replaceAll('"', '');
 
           if (finalEnglish.isNotEmpty && finalForeign.isNotEmpty) {
             final List<String> computedWords = finalForeign.split(" ").where((String w) {
@@ -414,7 +410,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         isLoading = false;
         isRehearsalPhase = true;
       });
-      _startCueCardCacheImpressionTimer();
+      _startCueCardCacheImpressionTimer(); // Initialize the 1.2-second ad visibility window layer
     }
   }
 
@@ -425,6 +421,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       });
     }
   }
+
 // ============================================================================
 // WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 1: MASTER REHEARSAL ROUTER
 // ============================================================================
