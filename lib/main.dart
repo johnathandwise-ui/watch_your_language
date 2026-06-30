@@ -331,8 +331,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       });
     }
     
-    // 🛡️ True Gen 1 cloud backend function absolute target destination URL
-    const String completeBackendLiveUrl = "https://us-central1-gen-lang-client-0551559755.cloudfunctions.net/generate-script";
+    // Ensure your URL matches exactly: https://generate-script-t3yutwgarq-uc.a.run.app
+    const String completeBackendLiveUrl = "https://generate-script-t3yutwgarq-uc.a.run.app";
     
     try {
       final String freshCallSeedToken = DateTime.now().millisecondsSinceEpoch.toString();
