@@ -219,7 +219,6 @@ class LanguageSelectorScreen extends StatelessWidget {
     );
   }
 }
-
 // ============================================================================
 // WATCH YOUR LANGUAGE // PART 3 OF 5: GAME STATE MACHINE & HARDWARE ENGINE
 // ============================================================================
@@ -241,6 +240,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool isFullSentencePhase = false;
   bool isRecordingPhase = false;
   bool isPlaybackReviewPhase = false;
+  bool _isDelayActive = false; // Synchronized state tracking boolean for ad view
   
   String finalEnglishMeaning = "";
   String compiledForeignSentence = "";
@@ -285,6 +285,25 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     }
   }
+
+  void _startCueCardCacheImpressionTimer() {
+    if (!mounted) return;
+    setState(() { _isDelayActive = true; });
+    Timer(const Duration(milliseconds: 1200), () {
+      if (mounted) { setState(() { _isDelayActive = false; }); }
+    });
+  }
+
+  void _advanceWordIndexTrackerOrRouteNext() {
+    if (!mounted) return;
+    if (currentWordIndex < _currentFlashcardWord.length - 1) {
+      setState(() { currentWordIndex++; });
+      _startCueCardCacheImpressionTimer(); // Trigger impression buffer delay for next card
+    } else {
+      setState(() { isRehearsalPhase = false; isFullSentencePhase = true; });
+    }
+  }
+
 // ============================================================================
 // WATCH YOUR LANGUAGE // PART 4 OF 5: CLOUD PROXY GATEWAY & PROMPT RECOVERY
 // ============================================================================
@@ -335,6 +354,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 isLoading = false;
                 isRehearsalPhase = true;
               });
+              _startCueCardCacheImpressionTimer(); // Lock card display to start the 1.2s ad timer
             }
             return;
           }
@@ -373,6 +393,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         isLoading = false;
         isRehearsalPhase = true;
       });
+      _startCueCardCacheImpressionTimer(); // Lock card display to start the 1.2s ad timer
     }
   }
 
@@ -384,23 +405,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     }
   }
 
-  void _advanceWordIndexTrackerOrRouteNext() {
-    if (!mounted) {
-      return;
-    }
-    if (currentWordIndex < _currentFlashcardWord.length - 1) {
-      setState(() {
-        currentWordIndex++;
-      });
-    } else {
-      setState(() {
-        isRehearsalPhase = false;
-        isFullSentencePhase = true;
-      });
-    }
-  }
 // ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (A): VIEW ROUTERS & REHEARSAL INTERFACES
+// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT A: AD-LOCKED COMPARTMENTS
 // ============================================================================
   @override
   Widget build(BuildContext context) {
@@ -426,6 +432,24 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
   Widget _buildWordByWordRehearsalScreen() {
+    final List<Map<String, dynamic>> countryGridMap = [
+      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
+      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]},
+      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]},
+      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]},
+      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]},
+      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]},
+      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]},
+      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]},
+      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]},
+    ];
+
+    final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere(
+      (element) => element['name'] == widget.languageName,
+      orElse: () => {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
+    );
+    final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+
     final String activeCueWord = _currentFlashcardWord.isNotEmpty 
         ? _currentFlashcardWord[currentWordIndex] 
         : "LOADING...";
@@ -433,75 +457,138 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            children: [
-              _buildAdMobPlaceholderBannerUnit("TOP REHEARSAL BANNER AD"),
-              const Spacer(),
-              const Text(
-                "SAY THIS WORD:",
-                style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade900,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.amber.withOpacity(0.4), width: 1.5),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+                  child: _buildAdMobPlaceholderBannerUnit("TOP REHEARSAL BANNER AD"),
                 ),
-                child: Text(
-                  activeCueWord.toUpperCase(),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.amber, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 1.1),
+                Expanded(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: _buildCenterCueCardBlock(activeFlagColors, activeCueWord),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "WORD ${currentWordIndex + 1} OF ${_currentFlashcardWord.length}",
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber.shade700,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      _executeVoicePronunciationEngine(activeCueWord);
-                      _triggerAdRefresherIncrement();
-                    },
-                    icon: const Icon(Icons.volume_up, size: 20),
-                    label: const Text("LISTEN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 1.1)),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      _advanceWordIndexTrackerOrRouteNext();
-                      _triggerAdRefresherIncrement();
-                    },
-                    child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 1.1)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              _buildAdMobPlaceholderBannerUnit("BOTTOM REHEARSAL BANNER AD"),
-            ],
-          ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+                  child: _buildAdMobPlaceholderBannerUnit("BOTTOM REHEARSAL BANNER AD"),
+                ),
+              ],
+            );
+          },
         ),
       ),
+    );
+  }
+// ============================================================================
+// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT B: CUE TEXT & SENTENCE REVEAL
+// ============================================================================
+  Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "SAY THIS WORD:",
+          style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.red.shade900.withOpacity(0.55),
+                blurRadius: 16,
+                spreadRadius: 2,
+                offset: const Offset(0, 6),
+              ),
+            ],
+            gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          ),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+            decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
+            child: _isDelayActive 
+                ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
+                : Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Text(
+                        activeCueWord.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Arial',
+                          letterSpacing: 0.5,
+                          foreground: Paint()
+                            ..style = PaintingStyle.stroke
+                            ..strokeWidth = 1.5
+                            ..color = const Color(0xFFD4AF37),
+                          shadows: [
+                            Shadow(offset: const Offset(0, 4), blurRadius: 10, color: Colors.red.shade900.withOpacity(0.85)),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        activeCueWord.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, fontFamily: 'Arial', letterSpacing: 0.5, color: Colors.white),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          "WORD ${currentWordIndex + 1} OF ${_currentFlashcardWord.length}",
+          style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 32),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 54,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  onPressed: _isDelayActive ? null : () {
+                    _executeVoicePronunciationEngine(activeCueWord);
+                    _triggerAdRefresherIncrement();
+                  },
+                  icon: const Icon(Icons.volume_up, size: 20),
+                  label: const Text("LISTEN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.1)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Container(
+                height: 54,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  onPressed: _isDelayActive ? null : () {
+                    _advanceWordIndexTrackerOrRouteNext();
+                    _triggerAdRefresherIncrement();
+                  },
+                  child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.1)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -509,59 +596,58 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            children: [
-              _buildAdMobPlaceholderBannerUnit("TOP SENTENCE BANNER AD"),
-              const Spacer(),
-              const Text(
-                "THE FULL CHALLENGE SENTENCE:",
-                style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.amber.withOpacity(0.3)),
-                ),
-                child: Text(
-                  compiledForeignSentence,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber.shade700,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+              child: _buildAdMobPlaceholderBannerUnit("TOP SENTENCE BANNER AD"),
+            ),
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "THE FULL CHALLENGE SENTENCE:",
+                        style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.amber.withOpacity(0.3))),
+                        child: Text(compiledForeignSentence, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.amber.shade700, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          onPressed: () {
+                            setState(() { isFullSentencePhase = false; isRecordingPhase = true; });
+                            _startRecordingCountdownSequence();
+                          },
+                          child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.2)),
+                        ),
+                      ),
+                    ],
                   ),
-                  onPressed: () {
-                    setState(() {
-                      isFullSentencePhase = false;
-                      isRecordingPhase = true;
-                    });
-                    _startRecordingCountdownSequence();
-                  },
-                  child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.2)),
                 ),
               ),
-              const SizedBox(height: 20),
-              _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD"),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+              child: _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD"),
+            ),
+          ],
         ),
       ),
     );
   }
+
 // ============================================================================
 // WATCH YOUR LANGUAGE // PART 5 (B): RECORDING CONTROLLERS & HORIZONTAL PROMPTER
 // ============================================================================
