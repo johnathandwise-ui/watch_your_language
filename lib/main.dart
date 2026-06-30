@@ -241,7 +241,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool isRecordingPhase = false;
   bool isPlaybackReviewPhase = false;
   bool _isDelayActive = false; // Manages the 1.2-second ad visibility window layer
-  
+  bool _isScrollFinished = false;
+
   String finalEnglishMeaning = "";
   String compiledForeignSentence = "";
   List<String> _currentFlashcardWord = [];
@@ -800,15 +801,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
 // ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (B): RECORDING CONTROLLERS & HORIZONTAL PROMPTER
+// WATCH YOUR LANGUAGE // PART 5 (B): FRAMED STUDIO HARDWARE & STEADY PROMPTER
 // ============================================================================
   void _startRecordingCountdownSequence() {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     setState(() {
       isCountdownRunning = true;
       productionCountdown = 3;
+      _isScrollFinished = false; // Reset the button lock parameter for new takes
     });
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       if (!mounted) {
@@ -816,9 +816,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         return;
       }
       if (productionCountdown > 1) {
-        setState(() {
-          productionCountdown--;
-        });
+        setState(() { productionCountdown--; });
       } else {
         timer.cancel();
         setState(() {
@@ -831,99 +829,179 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
   void _startLiveStudioVideoCaptureStream() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      return;
-    }
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
     try {
       await _cameraController!.startVideoRecording();
       if (mounted) {
-        setState(() {
-          isCutButtonLocked = false;
-        });
+        setState(() { isCutButtonLocked = false; });
       }
       _initializeDualScrollingTeleprompter();
     } catch (_) {}
   }
 
   void _initializeDualScrollingTeleprompter() {
-    Future.delayed(const Duration(milliseconds: 200), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
         final double maxScroll = _prompterScrollController!.position.maxScrollExtent;
+        
+        // ⏱️ Half Speed Matrix: Expanded duration to 20 seconds makes text scroll perfectly steady
         _prompterScrollController!.animateTo(
           maxScroll,
-          duration: const Duration(seconds: 10),
+          duration: const Duration(seconds: 20),
           curve: Curves.linear,
-        );
+        ).then((_) {
+          // Unlocks the conditional rendering of the Cut button the exact millisecond the text finishes its path
+          if (mounted) {
+            setState(() { _isScrollFinished = true; });
+          }
+        });
       }
     });
   }
 
   Widget _buildLiveStudioRecordingScreen() {
+    final List<Map<String, dynamic>> countryGridMap = [
+      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
+      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]},
+      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]},
+      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]},
+      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]},
+      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]},
+      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]},
+      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]},
+      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]},
+    ];
+
+    final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere(
+      (element) => element['name'] == widget.languageName,
+      orElse: () => {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
+    );
+    final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+
     final String continuousScrollerText = "${compiledForeignSentence.toUpperCase()}               ${finalEnglishMeaning.toUpperCase()}          ";
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: (_cameraController == null || !_cameraController!.value.isInitialized)
-                ? Container(color: const Color(0xFF0A0A0A), child: const Center(child: CircularProgressIndicator(color: Colors.amber)))
-                : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!)),
-          ),
-          if (isCountdownRunning)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.4),
-                child: Center(
-                  child: Text(
-                    "$productionCountdown",
-                    style: const TextStyle(color: Colors.amber, fontSize: 80, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-          if (!isCountdownRunning)
-            Positioned(
-              top: 40,
-              left: 16,
-              right: 16,
-              child: Container(
-                height: 60,
+      backgroundColor: const Color(0xFF0A0A0A),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            children: [
+              // 🕹️ STEP 1: BLACK BACKGROUND TELEPROMPTER PANEL LOCATED ABOVE THE CAMERA VIEWPORT FRAME
+              Container(
+                height: 64,
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(color: Colors.black.withOpacity(0.75), borderRadius: BorderRadius.circular(10)),
-                child: SingleChildScrollView(
-                  controller: _prompterScrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Center(
-                    child: Text(
-                      continuousScrollerText,
-                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 2.0),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade900),
+                ),
+                child: isCountdownRunning
+                    ? const Center(child: Text("GET READY...", style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2)))
+                    : SingleChildScrollView(
+                        controller: _prompterScrollController,
+                        scrollDirection: Axis.horizontal,
+                        physics: const NeverScrollableScrollPhysics(),
+                        child: Center(
+                          child: Text(
+                            continuousScrollerText,
+                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 2.0),
+                          ),
+                        ),
+                      ),
+              ),
+
+              // 🎯 STEP 2: FRAMED CAMERA VIEWPORT COMPARTMENT DESIGNED EXACTLY LIKE THE CUE CARDS
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.shade900.withOpacity(0.55),
+                        blurRadius: 16,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                    gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: (_cameraController == null || !_cameraController!.value.isInitialized)
+                              ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber)))
+                              : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!)),
+                        ),
+                        if (isCountdownRunning)
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.5),
+                              child: Center(
+                                child: Text(
+                                  "$productionCountdown",
+                                  style: const TextStyle(color: Colors.amber, fontSize: 80, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ),
-          Positioned(
-            bottom: 40,
-            left: 16,
-            right: 16,
-            child: Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade700,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              const SizedBox(height: 24),
+
+              // 🧱 STEP 3: HIGH-CONTRAST CUT BUTTON WITH NEON AURA GLOW — CONDITIONALLY HIDDEN UNTIL SCROLL FINISHES
+              SizedBox(
+                height: 54,
+                width: double.infinity,
+                child: AnimatedOpacity(
+                  opacity: _isScrollFinished ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: IgnorePointer(
+                    ignoring: !_isScrollFinished,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.4),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd,
+                        child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2)),
+                      ),
+                    ),
+                  ),
                 ),
-                onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd,
-                child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.1)),
               ),
-            ),
+              const SizedBox(height: 8),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
+
 // ============================================================================
 // WATCH YOUR LANGUAGE // PART 5 (C): AD GATES, PLAYBACK DECK & SYSTEM DISPOSES
 // ============================================================================
