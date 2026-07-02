@@ -404,7 +404,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 22
-// ACCELERATED SPEED TELEPROMPTER TIMELINES
+// INTERSTITIAL VIDEO AD TRANSITION SWITCHES
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -419,7 +419,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
         final double maxScroll = _prompterScrollController!.position.maxScrollExtent;
-        // ⚡ Speed Boost: Animation time cut from 20 down to 10 seconds to increase text velocity
         _prompterScrollController!.animateTo(maxScroll, duration: const Duration(seconds: 10), curve: Curves.linear).then((_) {
           if (mounted) { setState(() { _isScrollFinished = true; }); }
         });
@@ -431,7 +430,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     if (_cameraController == null || !_cameraController!.value.isRecordingVideo) return;
     try {
       await _cameraController!.stopVideoRecording();
-      if (mounted) { setState(() { isPlaybackReviewPhase = true; isRecordingPhase = false; }); }
+      if (mounted) {
+        setState(() {
+          isLoading = true; // Flips on loading matrix to show the interstitial ad step
+          isRecordingPhase = false;
+        });
+      }
+      // 🎬 Simulates a 2.0-second full-screen mobile interstitial video ad breakout window
+      Timer(const Duration(milliseconds: 2000), () {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+            isPlaybackReviewPhase = true; // Safe handoff lands user directly onto review suite
+          });
+        }
+      });
     } catch (_) {}
   }
 
@@ -711,27 +724,79 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 21 OF 22
-// POST-AD PLAYBACK REVIEW SCREEN CANVAS
+// PREMIUM PLAYBACK REVIEW SUITE & MEDIA LANES
 // ==========================================
   Widget _buildPostAdPlaybackReviewScreen() {
+    final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]}];
+    final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
+    final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle_outline, color: Colors.green, size: 72),
-            const SizedBox(height: 16),
-            const Text("REVIEW SCREEN PLACEHOLDER", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () { Navigator.pop(context); },
-              child: const Text("PLAY AGAIN"),
-            )
-          ],
-        ),
+      backgroundColor: const Color(0xFF0A0A0A),
+      body: SafeArea(
+        child: Column(children: [
+          Padding(padding: const EdgeInsets.only(top: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("TOP REVIEW INTERSTITIAL BANNER AD")),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Column(children: [
+                _buildStudioBrandingHeaderProfile(),
+                const SizedBox(height: 16),
+                // 🎬 THE FRAMED STUDIO VIDEO PLAYBACK REVIEW COMPARTMENT BOX
+                Container(
+                  height: 220, width: double.infinity, padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.45), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 4))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+                  child: Container(
+                    decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
+                    child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.play_circle_outline, color: Colors.amber, size: 52), SizedBox(height: 8), Text("READY TO CHOP PRODUCER...", style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.8))])),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text("PUBLISH RUSH LANES:", style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                const SizedBox(height: 12),
+                // 📱 THE 4 SQUARE PLATFORM SOCIAL PUBLISHING TOKENS ROW
+                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                  _buildSocialPublishTokenButton("🎬", "TIKTOK", const Color(0xFF000000)),
+                  _buildSocialPublishTokenButton("🔴", "YOUTUBE", const Color(0xFFFF0000)),
+                  _buildSocialPublishTokenButton("📸", "INSTA", const Color(0xFFE1306C)),
+                  _buildSocialPublishTokenButton("🔵", "FB", const Color(0xFF1877F2)),
+                ]),
+                const SizedBox(height: 24),
+                // 🕹️ THE 3 PRIMARY CONTROL ACTION BUTTONS STACK
+                _buildReviewControlActionButton("TRY AGAIN", activeFlagColors, () { setState(() { isPlaybackReviewPhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); }),
+                const SizedBox(height: 10),
+                _buildReviewControlActionButton("TRY ANOTHER LANGUAGE", activeFlagColors, () { Navigator.pop(context); }),
+                const SizedBox(height: 10),
+                _buildReviewControlActionButton("NEXT LINE", activeFlagColors, () { _fetchCuratedGistJokesRepository(); }),
+              ]),
+            ),
+          ),
+          Padding(padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("BOTTOM REVIEW INTERSTITIAL BANNER AD")),
+        ]),
       ),
     );
   }
+
+  Widget _buildSocialPublishTokenButton(String emoji, String title, Color backingColor) {
+    return Container(
+      width: 56, height: 56,
+      decoration: BoxDecoration(color: backingColor.withOpacity(0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: backingColor, width: 2), boxShadow: [BoxShadow(color: backingColor.withOpacity(0.15), blurRadius: 6)]),
+      child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22))),
+    );
+  }
+
+  Widget _buildReviewControlActionButton(String label, List<Color> activeFlagColors, VoidCallback onTapAction) {
+    return Container(
+      height: 50, width: double.infinity,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.35), blurRadius: 10, spreadRadius: 1, offset: const Offset(0, 2))]),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        onPressed: onTapAction,
+        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.2)),
+      ),
+    );
+  }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 22 OF 22
 // ADMOB VIEW ANCHORS & CORE STATE PURGE
