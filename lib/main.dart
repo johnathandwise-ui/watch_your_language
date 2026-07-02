@@ -398,7 +398,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 22
-// VIDEO STREAM CAPTURE & PROMPTER TIMELINES
+// ACCELERATED SPEED TELEPROMPTER TIMELINES
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -413,7 +413,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
         final double maxScroll = _prompterScrollController!.position.maxScrollExtent;
-        _prompterScrollController!.animateTo(maxScroll, duration: const Duration(seconds: 20), curve: Curves.linear).then((_) {
+        // ⚡ Speed Boost: Animation time cut from 20 down to 10 seconds to increase text velocity
+        _prompterScrollController!.animateTo(maxScroll, duration: const Duration(seconds: 10), curve: Curves.linear).then((_) {
           if (mounted) { setState(() { _isScrollFinished = true; }); }
         });
       }
@@ -427,6 +428,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (mounted) { setState(() { isPlaybackReviewPhase = true; isRecordingPhase = false; }); }
     } catch (_) {}
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 16 OF 22
 // MASTER UI SCREEN ROUTER STATE MACHINE SWITCHER
@@ -617,7 +619,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
-// FRAMED CAMERA STUDIO SCREEN & PROMPTER DECK
+// MID-LENS PROMPTER CAM & BRAND LOGO HEADER
 // ==========================================
   Widget _buildLiveStudioRecordingScreen() {
     final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]}];
@@ -628,16 +630,65 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
       body: SafeArea(
-        child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), child: Column(children: [
-          Container(height: 64, width: double.infinity, margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.symmetric(horizontal: 12), decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade900)), child: isCountdownRunning ? const Center(child: Text("GET READY...", style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2))) : SingleChildScrollView(controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), child: Center(child: Text(continuousScrollerText, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 2.0))))),
-          Expanded(child: Container(width: double.infinity, padding: const EdgeInsets.all(2), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)), child: ClipRRect(borderRadius: BorderRadius.circular(14), child: Stack(children: [Positioned.fill(child: (_cameraController == null || !_cameraController!.value.isInitialized) ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber))) : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!))), if (isCountdownRunning) Positioned.fill(child: Container(color: Colors.black.withOpacity(0.5), child: Center(child: Text("$productionCountdown", style: const TextStyle(color: Colors.amber, fontSize: 80, fontWeight: FontWeight.bold)))))])))),
-          const SizedBox(height: 24),
-          SizedBox(height: 54, width: double.infinity, child: AnimatedOpacity(opacity: _isScrollFinished ? 1.0 : 0.0, duration: const Duration(milliseconds: 300), child: IgnorePointer(ignoring: !_isScrollFinished, child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd, child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2))))))),
-          const SizedBox(height: 8),
-        ])),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
+          child: Column(children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildStudioBrandingHeaderProfile(),
+            ),
+            Expanded(
+              child: Container(
+                width: double.infinity, padding: const EdgeInsets.all(2), 
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)), 
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14), 
+                  child: Stack(children: [
+                    Positioned.fill(child: (_cameraController == null || !_cameraController!.value.isInitialized) ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber))) : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!))),
+                    if (!isCountdownRunning)
+                      Positioned(
+                        left: 0, right: 0, top: 0, bottom: 0,
+                        child: Center(
+                          child: Container(
+                            height: 64, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
+                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.65)), 
+                            child: SingleChildScrollView(
+                              controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), 
+                              child: Center(child: Text(continuousScrollerText, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 2.0, backgroundColor: Colors.transparent))),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (isCountdownRunning) Positioned.fill(child: Container(color: Colors.black.withOpacity(0.5), child: Center(child: Text("$productionCountdown", style: const TextStyle(color: Colors.amber, fontSize: 80, fontWeight: FontWeight.bold))))),
+                  ]),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(height: 54, width: double.infinity, child: AnimatedOpacity(opacity: _isScrollFinished ? 1.0 : 0.0, duration: const Duration(milliseconds: 300), child: IgnorePointer(ignoring: !_isScrollFinished, child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd, child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2))))))),
+            const SizedBox(height: 8),
+          ]),
+        ),
       ),
     );
   }
+
+  Widget _buildStudioBrandingHeaderProfile() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(children: [
+          Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
+          const Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.white)),
+        ]),
+        Stack(children: [
+          Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
+          const Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, color: Colors.white)),
+        ]),
+      ],
+    );
+  }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 21 OF 22
 // POST-AD PLAYBACK REVIEW SCREEN CANVAS
