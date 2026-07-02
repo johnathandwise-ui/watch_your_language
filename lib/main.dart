@@ -472,18 +472,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 // ==========================================
   Widget _buildWordByWordRehearsalScreen() {
     final List<Map<String, dynamic>> countryGridMap = [
-      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
-      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]},
-      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]},
-      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]},
-      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]},
-      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]},
-      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]},
-      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]},
-      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]},
+      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'},
+      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'},
+      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'},
+      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'},
+      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'},
+      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'},
+      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'},
+      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'},
+      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'},
     ];
     final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+    final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     final String activeCueWord = _currentFlashcardWord.isNotEmpty ? _currentFlashcardWord[currentWordIndex] : "LOADING...";
 
     return Scaffold(
@@ -492,7 +493,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         child: Column(
           children: [
             Padding(padding: const EdgeInsets.only(top: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("TOP REHEARSAL BANNER AD")),
-            Expanded(child: Center(child: SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), child: _buildCenterCueCardBlock(activeFlagColors, activeCueWord)))),
+            Expanded(child: Center(child: SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), child: _buildCenterCueCardBlock(activeFlagColors, activeCueWord, activeFlagIcon)))),
             Padding(padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("BOTTOM REHEARSAL BANNER AD")),
           ],
         ),
@@ -501,25 +502,32 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// CUE DECK COMPONENT & LOGO STYLE INJECTION
+// FLAG-FRAMED CUE CARD BRAND LOGO DECK
 // ==========================================
-  Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord) {
+  Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord, String flagIcon) {
     return Column(
       mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // 🎯 Embedded compact, drop-shadowed brand logo header profile on cue card screen
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+        // 🎯 Brand Logo framed beautifully between country flag icons on cue cards
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(alignment: Alignment.center, children: [
-              Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-              const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
-            ]),
-            Stack(alignment: Alignment.center, children: [
-              Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-              const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
-            ]),
+            Text(flagIcon, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            Column(
+              children: [
+                Stack(alignment: Alignment.center, children: [
+                  Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                  const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
+                ]),
+                Stack(alignment: Alignment.center, children: [
+                  Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                  const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
+                ]),
+              ],
+            ),
+            const SizedBox(width: 12),
+            Text(flagIcon, style: const TextStyle(fontSize: 24)),
           ],
         ),
         const SizedBox(height: 28),
@@ -550,29 +558,33 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ],
     );
   }
-
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 19 OF 22
-// AUTOMATED SPEAKER FULL SENTENCE REVEAL VIEW
+// FULL CHALLENGE SENTENCE VIEW WITH LOGO FLAGS
 // ==========================================
   Widget _buildFullSentencePresentationScreen() {
     final List<Map<String, dynamic>> countryGridMap = [
-      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
-      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]},
-      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]},
-      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]},
-      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]},
-      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]},
-      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]},
-      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]},
-      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]},
+      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'},
+      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'},
+      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'},
+      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'},
+      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'},
+      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'},
+      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'},
+      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'},
+      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'},
     ];
     final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+    final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     
     WidgetsBinding.instance.addPostFrameCallback((_) { 
       if (mounted && isFullSentencePhase) { 
-        _executeVoicePronunciationEngine(compiledForeignSentence); 
+        Future.delayed(const Duration(milliseconds: 350), () {
+          if (mounted && isFullSentencePhase) {
+            _executeVoicePronunciationEngine(compiledForeignSentence);
+          }
+        });
       } 
     });
 
@@ -582,85 +594,123 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 8, left: 16, right: 16), 
+              padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
               child: _buildAdMobPlaceholderBannerUnit("TOP SENTENCE BANNER AD"),
             ),
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16), 
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center, 
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(activeFlagIcon, style: const TextStyle(fontSize: 24)),
+                          const SizedBox(width: 12),
+                          Column(
+                            children: [
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                                  const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
+                                ],
+                              ),
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                                  const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 12),
+                          Text(activeFlagIcon, style: const TextStyle(fontSize: 24)),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
                       const Text("THE FULL CHALLENGE SENTENCE:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                       const SizedBox(height: 16),
                       Container(
-                        width: double.infinity, 
-                        padding: const EdgeInsets.all(2), 
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16), 
-                          boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))], 
-                          gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)
-                        ), 
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))],
+                          gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        ),
                         child: Container(
-                          width: double.infinity, 
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56), 
-                          decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)), 
-                          child: Text(compiledForeignSentence, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold))
-                        )
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56),
+                          decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
+                          child: Text(compiledForeignSentence, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                        ),
                       ),
                       const SizedBox(height: 48),
                       Row(
                         children: [
                           Expanded(
                             child: Container(
-                              height: 54, 
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), 
+                              height: 54,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.black, width: 2),
+                                gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))],
+                              ),
                               child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), 
-                                onPressed: () { _executeVoicePronunciationEngine(compiledForeignSentence); _triggerAdRefresherIncrement(); }, 
-                                icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), 
-                                label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))
-                              )
-                            )
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () { _executeVoicePronunciationEngine(compiledForeignSentence); _triggerAdRefresherIncrement(); },
+                                icon: const Icon(Icons.volume_up, size: 18, color: Colors.black),
+                                label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1)),
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Container(
-                              height: 54, 
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), 
+                              height: 54,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.black, width: 2),
+                                gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))],
+                              ),
                               child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), 
-                                onPressed: () { setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); }, 
-                                child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))
-                              )
-                            )
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () { setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); },
+                                child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
+                              ),
+                            ),
                           ),
-                        ]
+                        ],
                       ),
-                    ]
-                  )
-                )
-              )
+                    ],
+                  ),
+                ),
+              ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16), 
-              child: _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD")
+              padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+              child: _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD"),
             ),
-          ]
+          ],
         ),
       ),
     );
   }
-
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
-// CRIMSOM DROP SHADOW LOGO STUDIO CAM VIEW
+// FLAG-FRAMED BRAND LOGO OVERLAY STUDIO CAM
 // ==========================================
   Widget _buildLiveStudioRecordingScreen() {
-    final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]}];
+    final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'}];
     final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+    final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     final String continuousScrollerText = "${compiledForeignSentence.toUpperCase()}               ${finalEnglishMeaning.toUpperCase()}          ";
 
     return Scaffold(
@@ -669,7 +719,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
           child: Column(children: [
-            Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildStudioBrandingHeaderProfile()),
+            Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildStudioBrandingHeaderProfile(activeFlagIcon)),
             Expanded(
               child: Container(
                 width: double.infinity, padding: const EdgeInsets.all(2), 
@@ -706,30 +756,39 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 
-  Widget _buildStudioBrandingHeaderProfile() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildStudioBrandingHeaderProfile(String flagIcon) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Stack(children: [
-          Text("WATCH YOUR", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-          const Text("WATCH YOUR", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
-        ]),
-        Stack(children: [
-          Text("LANGUAGE", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-          const Text("LANGUAGE", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white)),
-        ]),
+        Text(flagIcon, style: const TextStyle(fontSize: 22)),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Stack(children: [
+              Text("WATCH YOUR", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+              const Text("WATCH YOUR", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
+            ]),
+            Stack(children: [
+              Text("LANGUAGE", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+              const Text("LANGUAGE", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white)),
+            ]),
+          ],
+        ),
+        const SizedBox(width: 12),
+        Text(flagIcon, style: const TextStyle(fontSize: 22)),
       ],
     );
   }
-
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 21 OF 22
 // PREMIUM PLAYBACK REVIEW SUITE & MEDIA LANES
 // ==========================================
   Widget _buildPostAdPlaybackReviewScreen() {
-    final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]}];
+    final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'}];
     final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
+    final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -740,9 +799,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Column(children: [
-                _buildStudioBrandingHeaderProfile(),
+                _buildStudioBrandingHeaderProfile(activeFlagIcon),
                 const SizedBox(height: 16),
-                // 🎬 THE FRAMED STUDIO VIDEO PLAYBACK REVIEW COMPARTMENT BOX
                 Container(
                   height: 220, width: double.infinity, padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.45), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 4))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
@@ -754,7 +812,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 const SizedBox(height: 16),
                 const Text("PUBLISH RUSH LANES:", style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                 const SizedBox(height: 12),
-                // 📱 THE 4 SQUARE PLATFORM SOCIAL PUBLISHING TOKENS ROW
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
                   _buildSocialPublishTokenButton("🎬", "TIKTOK", const Color(0xFF000000)),
                   _buildSocialPublishTokenButton("🔴", "YOUTUBE", const Color(0xFFFF0000)),
@@ -762,7 +819,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                   _buildSocialPublishTokenButton("🔵", "FB", const Color(0xFF1877F2)),
                 ]),
                 const SizedBox(height: 24),
-                // 🕹️ THE 3 PRIMARY CONTROL ACTION BUTTONS STACK
                 _buildReviewControlActionButton("TRY AGAIN", activeFlagColors, () { setState(() { isPlaybackReviewPhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); }),
                 const SizedBox(height: 10),
                 _buildReviewControlActionButton("TRY ANOTHER LANGUAGE", activeFlagColors, () { Navigator.pop(context); }),
@@ -776,11 +832,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ),
     );
   }
-
+// ==========================================
+// 📦 WATCH YOUR LANGUAGE // BLOCK 22 OF 22
+// REVIEW SUB-COMPONENTS & CORE STATE PURGE
+// ==========================================
   Widget _buildSocialPublishTokenButton(String emoji, String title, Color backingColor) {
     return Container(
       width: 56, height: 56,
-      decoration: BoxDecoration(color: backingColor.withOpacity(0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: backingColor, width: 2), boxShadow: [BoxShadow(color: backingColor.withOpacity(0.15), blurRadius: 6)]),
+      decoration: BoxDecoration(
+        color: backingColor.withOpacity(0.2), 
+        borderRadius: BorderRadius.circular(12), 
+        border: Border.all(color: backingColor, width: 2), 
+        boxShadow: [BoxShadow(color: backingColor.withOpacity(0.15), blurRadius: 6)]
+      ),
       child: Center(child: Text(emoji, style: const TextStyle(fontSize: 22))),
     );
   }
@@ -788,7 +852,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   Widget _buildReviewControlActionButton(String label, List<Color> activeFlagColors, VoidCallback onTapAction) {
     return Container(
       height: 50, width: double.infinity,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.35), blurRadius: 10, spreadRadius: 1, offset: const Offset(0, 2))]),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12), 
+        border: Border.all(color: Colors.black, width: 2), 
+        gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), 
+        boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.35), blurRadius: 10, spreadRadius: 1, offset: const Offset(0, 2))]
+      ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
         onPressed: onTapAction,
@@ -797,10 +866,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 
-// ==========================================
-// 📦 WATCH YOUR LANGUAGE // BLOCK 22 OF 22
-// ADMOB VIEW ANCHORS & CORE STATE PURGE
-// ==========================================
   Widget _buildAdMobPlaceholderBannerUnit(String label) {
     return Container(
       height: 50, width: double.infinity,
