@@ -67,6 +67,7 @@ class LanguageSelectorScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          // 🎯 Left alignment is fully locked into this structural cross axis column profile
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -80,6 +81,7 @@ class LanguageSelectorScreen extends StatelessWidget {
       ),
     );
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 4 OF 22
 // STACKED GOLD OUTLINED BRAND HEADERS
@@ -482,19 +484,24 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// CUE DECK COMPONENT & WHITE SHADOW GLOW BUTTONS
+// CUE DECK COMPONENT & BLACK BORDERED BUTTONS
 // ==========================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord) {
     return Column(
       mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // 🎯 Added a tight, miniature branding badge right above the main rehearsal cue card
+        const Padding(
+          padding: EdgeInsets.only(bottom: 24),
+          child: Text("⚡ WATCH YOUR LANGUAGE ⚡", style: TextStyle(color: Color(0xFFD4AF37), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2.0)),
+        ),
         const Text("SAY THIS WORD:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         const SizedBox(height: 16),
         Container(
           width: double.infinity, padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
           child: Container(
-            width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 140), // Massive 140 vertical space
+            width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 140),
             decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
             child: _isDelayActive 
                 ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
@@ -508,13 +515,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         Text("WORD ${currentWordIndex + 1} OF ${_currentFlashcardWord.length}", style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 48),
         Row(children: [
-          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _executeVoicePronunciationEngine(activeCueWord); _triggerAdRefresherIncrement(); }, icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))))),
+          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _executeVoicePronunciationEngine(activeCueWord); _triggerAdRefresherIncrement(); }, icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))))),
           const SizedBox(width: 12),
-          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _advanceWordIndexTrackerOrRouteNext(); _triggerAdRefresherIncrement(); }, child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))))),
+          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _advanceWordIndexTrackerOrRouteNext(); _triggerAdRefresherIncrement(); }, child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))))),
         ]),
       ],
     );
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 19 OF 22
 // AUTOMATED SPEAKER FULL SENTENCE REVEAL VIEW
@@ -619,7 +627,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
-// MID-LENS PROMPTER CAM & BRAND LOGO HEADER
+// CRIMSOM DROP SHADOW LOGO STUDIO CAM VIEW
 // ==========================================
   Widget _buildLiveStudioRecordingScreen() {
     final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]}];
@@ -633,10 +641,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
           child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildStudioBrandingHeaderProfile(),
-            ),
+            Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildStudioBrandingHeaderProfile()),
             Expanded(
               child: Container(
                 width: double.infinity, padding: const EdgeInsets.all(2), 
@@ -678,12 +683,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(children: [
-          Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
-          const Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.white)),
+          Text("WATCH YOUR", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+          const Text("WATCH YOUR", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
         ]),
         Stack(children: [
-          Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
-          const Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, color: Colors.white)),
+          Text("LANGUAGE", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+          const Text("LANGUAGE", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white)),
         ]),
       ],
     );
