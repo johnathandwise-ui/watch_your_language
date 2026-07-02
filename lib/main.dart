@@ -43,7 +43,7 @@ class WatchYourLanguageAppCanvas extends StatelessWidget {
 }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 3 OF 22
-// LANGUAGE SELECTOR ROOM SCAFFOLD
+// CENTERED LANGUAGE SELECTOR ROOM SCAFFOLD
 // ==========================================
 class LanguageSelectorScreen extends StatelessWidget {
   final List<CameraDescription> cameras;
@@ -67,12 +67,12 @@ class LanguageSelectorScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          // 🎯 Left alignment is fully locked into this structural cross axis column profile
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center, // 🎯 Centers top elements globally
             children: [
               const SizedBox(height: 32),
-              _buildBrandingHeaderProfile(),
+              // Center layout anchor guarantees the brand header balances on screen
+              Center(child: _buildBrandingHeaderProfile()),
               const SizedBox(height: 40),
               Expanded(child: _buildFlagSelectorGridLayout(context, languageGridList)),
             ],
@@ -84,27 +84,31 @@ class LanguageSelectorScreen extends StatelessWidget {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 4 OF 22
-// STACKED GOLD OUTLINED BRAND HEADERS
+// CENTER-ALIGNED CRIMSON DROP SHADOW LOGO
 // ==========================================
   Widget _buildBrandingHeaderProfile() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center, // 🎯 Centers text rows internally
+      mainAxisSize: MainAxisSize.min,
       children: [
         Stack(
+          alignment: Alignment.center,
           children: [
-            Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
-            const Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.white)),
+            Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 3), blurRadius: 6, color: Colors.red.shade900)])),
+            const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.white)),
           ],
         ),
         Stack(
+          alignment: Alignment.center,
           children: [
-            Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
-            const Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, color: Colors.white)),
+            Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 3), blurRadius: 6, color: Colors.red.shade900)])),
+            const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, color: Colors.white)),
           ],
         ),
       ],
     );
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 5 OF 22
 // FLUID HOME GRID INKWELL VIEW BUILDER
@@ -484,17 +488,28 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// CUE DECK COMPONENT & BLACK BORDERED BUTTONS
+// CUE DECK COMPONENT & LOGO STYLE INJECTION
 // ==========================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord) {
     return Column(
       mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // 🎯 Added a tight, miniature branding badge right above the main rehearsal cue card
-        const Padding(
-          padding: EdgeInsets.only(bottom: 24),
-          child: Text("⚡ WATCH YOUR LANGUAGE ⚡", style: TextStyle(color: Color(0xFFD4AF37), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2.0)),
+        // 🎯 Embedded compact, drop-shadowed brand logo header profile on cue card screen
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(alignment: Alignment.center, children: [
+              Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+              const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
+            ]),
+            Stack(alignment: Alignment.center, children: [
+              Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+              const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
+            ]),
+          ],
         ),
+        const SizedBox(height: 28),
         const Text("SAY THIS WORD:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         const SizedBox(height: 16),
         Container(
