@@ -279,14 +279,25 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
     String translatedSentence = englishSentence;
     try {
-      final String translationEngineUrl = "https://googleapis.com{Uri.encodeComponent(englishSentence)}";
-      final http.Response response = await http.get(Uri.parse(translationEngineUrl)).timeout(const Duration(seconds: 5));
+      // 🛡️ UN-TRUNCATABLE PIECE-BY-PIECE STRING CONSTRUCTION ENGINE
+      const String gDomain = "translate.googleapis.com";
+      const String gEndpoint = "translate_a/single";
+      final String gParams = "client=gtx&sl=en&tl=$targetLangCode&dt=t&q=${Uri.encodeComponent(englishSentence)}";
+      
+      final String completeTranslationUrl = "https://$gDomain/$gEndpoint?$gParams";
+      final http.Response response = await http.get(Uri.parse(completeTranslationUrl)).timeout(const Duration(seconds: 5));
+      
       if (response.statusCode == 200) {
-        final List<dynamic> outerJsonArray = json.decode(response.body);
-        if (outerJsonArray.isNotEmpty && outerJsonArray[0] != null) {
-          final List<dynamic> translationSegments = outerJsonArray[0] as List<dynamic>;
-          if (translationSegments.isNotEmpty && translationSegments[0] != null) {
-            translatedSentence = translationSegments[0][0].toString().trim();
+        final List<dynamic> outerJsonArray = json.decode(response.body) as List<dynamic>;
+        
+        // 🎯 Deep nested list index extraction pulls index 0 arrays cleanly
+        if (outerJsonArray.isNotEmpty) {
+          final List<dynamic> levelOneBox = outerJsonArray[0] as List<dynamic>;
+          if (levelOneBox.isNotEmpty) {
+            final List<dynamic> levelTwoBox = levelOneBox[0] as List<dynamic>;
+            if (levelTwoBox.isNotEmpty) {
+              translatedSentence = levelTwoBox[0].toString().trim();
+            }
           }
         }
       }
