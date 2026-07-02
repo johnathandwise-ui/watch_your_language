@@ -1,21 +1,39 @@
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 1 OF 5: BASE INITIALIZATION & THE 3X3 GRID
-// ============================================================================
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:math';
-import 'dart:async';
+
+// List storage reference holds our active available camera hardware metrics
+List<CameraDescription> cameras = [];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final List<CameraDescription> cameras = await availableCameras();
-  runApp(MaterialApp(
-    theme: ThemeData.dark(),
-    home: LanguageSelectorScreen(cameras: cameras),
-  ));
+  try {
+    cameras = await availableCameras();
+  } catch (e) {
+    debugPrint("Hardware camera configuration initialization fault: $e");
+  }
+  runApp(const WatchYourLanguageAppCanvas());
+}
+
+class WatchYourLanguageAppCanvas extends StatelessWidget {
+  const WatchYourLanguageAppCanvas({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Watch Your Language',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0A0A0A),
+        primaryColor: Colors.amber,
+      ),
+      home: LanguageSelectorScreen(cameras: cameras),
+    );
+  }
 }
 
 class LanguageSelectorScreen extends StatelessWidget {
@@ -24,7 +42,8 @@ class LanguageSelectorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> countryGridMap = [
+    // 🎭 YOUR HIGH-FIDELITY LIVE PRODUCTION SELECTION GRID MAP
+    final List<Map<String, dynamic>> languageGridList = [
       {'name': 'Spanish', 'flag': '🇪🇸', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
       {'name': 'French', 'flag': '🇫🇷', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]},
       {'name': 'German', 'flag': '🇩🇪', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]},
@@ -37,137 +56,46 @@ class LanguageSelectorScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
       body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF0F0F12), Color(0xFF050507)],
-            ),
-          ),
-          child: Stack(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.03,
-                  child: GridPaper(color: Colors.white, interval: 24, subdivisions: 1, child: Container()),
-                ),
-              ),
-              SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 12),
-                    _buildMetallicLogoHeaderUnit(),
-                    const SizedBox(height: 36),
-                    const Text(
-                      "SELECT A LANGUAGE TO READ:",
-                      style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildFlagSelectorGridLayout(context, countryGridMap),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 32),
+              _buildBrandingHeaderProfile(),
+              const SizedBox(height: 40),
+              Expanded(child: _buildFlagSelectorGridLayout(context, languageGridList)),
             ],
           ),
         ),
       ),
     );
   }
-   // ============================================================================
-  // WATCH YOUR LANGUAGE // PART 2 OF 5: OUTLINED LOGO & SHADOW GRID BUILDERS
-  // ============================================================================
-  Widget _buildMetallicLogoHeaderUnit() {
+
+  Widget _buildBrandingHeaderProfile() {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Layer 1: "Watch-Your" with a tight 1.5pt metallic gold stroke and a rich crimson shadow
         Stack(
-          alignment: Alignment.center,
           children: [
-            // Underlying Gold Stroke Rim Layer
-            Text(
-              "Watch-Your",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 44,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Arial',
-                letterSpacing: -0.5,
-                foreground: Paint()
-                  ..style = PaintingStyle.stroke
-                  ..strokeWidth = 1.5 // Sharp outline thickness prevents letter clogging
-                  ..color = const Color(0xFFD4AF37), // Metallic gold signature tone
-                shadows: [
-                  Shadow(offset: const Offset(0, 5), blurRadius: 15, color: Colors.red.shade900.withOpacity(0.95)),
-                ],
-              ),
-            ),
-            // Floating Pure White Inner Text Face Layer
-            const Text(
-              "Watch-Your",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 44,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Arial',
-                letterSpacing: -0.5,
-                color: Colors.white,
-              ),
-            ),
+            Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
+            const Text("WATCH YOUR", style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.white)),
           ],
         ),
-        const SizedBox(height: 2),
-        // Layer 2: "Language" with matching balanced border spacing parameters
         Stack(
-          alignment: Alignment.center,
           children: [
-            // Underlying Gold Stroke Rim Layer
-            Text(
-              "Language",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 50,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Arial',
-                letterSpacing: -0.5,
-                foreground: Paint()
-                  ..style = PaintingStyle.stroke
-                  ..strokeWidth = 1.5
-                  ..color = const Color(0xFFD4AF37),
-                shadows: [
-                  Shadow(offset: const Offset(0, 5), blurRadius: 15, color: Colors.red.shade900.withOpacity(0.95)),
-                ],
-              ),
-            ),
-            // Floating Pure White Inner Text Face Layer
-            const Text(
-              "Language",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 50,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Arial',
-                letterSpacing: -0.5,
-                color: Colors.white,
-              ),
-            ),
+            Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = const Color(0xFFD4AF37))),
+            const Text("LANGUAGE", style: TextStyle(fontSize: 44, fontWeight: FontWeight.w900, color: Colors.white)),
           ],
         ),
       ],
     );
   }
-
   Widget _buildFlagSelectorGridLayout(BuildContext context, List<Map<String, dynamic>> gridMap) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3, 
         crossAxisSpacing: 12, 
@@ -188,12 +116,7 @@ class LanguageSelectorScreen extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.red.shade900.withOpacity(0.35),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                  offset: const Offset(0, 4),
-                ),
+                BoxShadow(color: Colors.red.shade900.withOpacity(0.35), blurRadius: 10, spreadRadius: 1, offset: const Offset(0, 4)),
               ],
               gradient: LinearGradient(colors: flagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
             ),
@@ -219,9 +142,7 @@ class LanguageSelectorScreen extends StatelessWidget {
     );
   }
 }
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 3 OF 5: GAME STATE MACHINE & HARDWARE ENGINE
-// ============================================================================
+
 class GameLoopScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
   final String languageName;
@@ -240,9 +161,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool isFullSentencePhase = false;
   bool isRecordingPhase = false;
   bool isPlaybackReviewPhase = false;
-  bool _isDelayActive = false; // Manages the 1.2-second ad visibility window layer
+  bool _isDelayActive = false;
   bool _isScrollFinished = false;
-
+  
   String finalEnglishMeaning = "";
   String compiledForeignSentence = "";
   List<String> _currentFlashcardWord = [];
@@ -253,7 +174,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool isCutButtonLocked = false;
   int adRefreshCounterSeed = 0;
   
-  String networkTrafficStatusHUD = "📡 INITIALISING ENGINE MATRIX...";
+  String networkTrafficStatusHUD = "📡 RETRIEVING MASTER GIST DATA POOL...";
+  
+  // Static state tracking keys maintain global memory across layout screen loads
+  static final List<String> _sessionHistoryKeys = [];
   
   Timer? _countdownTimer;
   ScrollController? _prompterScrollController;
@@ -267,9 +191,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
   void _bootstrapStudioHardware() async {
     if (widget.cameras.isEmpty) {
-      if (mounted) {
-        setState(() { networkTrafficStatusHUD = "❌ NO CAMERAS FOUND"; });
-      }
+      if (mounted) { setState(() { networkTrafficStatusHUD = "❌ NO CAMERAS FOUND"; }); }
       return;
     }
     final CameraDescription frontCam = widget.cameras.firstWhere(
@@ -279,11 +201,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     _cameraController = CameraController(frontCam, ResolutionPreset.medium, enableAudio: true);
     try {
       await _cameraController!.initialize();
-      _generateAutomatedComedyScript();
+      _fetchCuratedGistJokesRepository();
     } catch (e) {
-      if (mounted) {
-        setState(() { networkTrafficStatusHUD = "❌ CAMERA ERROR: $e"; });
-      }
+      if (mounted) { setState(() { networkTrafficStatusHUD = "❌ CAMERA ERROR: $e"; }); }
     }
   }
 
@@ -293,34 +213,24 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     Timer(const Duration(milliseconds: 1200), () {
       if (mounted) { 
         setState(() { _isDelayActive = false; }); 
-        
-        // Robust Audio Fallback Trigger: Fetches and forcefully fires target pronunciation
-        final String activeCueWord = _currentFlashcardWord.isNotEmpty 
-            ? _currentFlashcardWord[currentWordIndex] 
-            : "";
-            
+        final String activeCueWord = _currentFlashcardWord.isNotEmpty ? _currentFlashcardWord[currentWordIndex] : "";
         if (activeCueWord.isNotEmpty && activeCueWord != "LOADING...") {
-          // Wrap in a short future microtask track to ensure web browser audio thread context is active
           Future.microtask(() => _executeVoicePronunciationEngine(activeCueWord));
         }
       }
     });
   }
 
-      void _advanceWordIndexTrackerOrRouteNext() {
+  void _advanceWordIndexTrackerOrRouteNext() {
     if (!mounted) return;
     if (currentWordIndex < _currentFlashcardWord.length - 1) {
       setState(() { currentWordIndex++; });
-      _startCueCardCacheImpressionTimer(); // Trigger impression buffer delay for next card
+      _startCueCardCacheImpressionTimer();
     } else {
       setState(() { isRehearsalPhase = false; isFullSentencePhase = true; });
     }
   }
-
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 4 OF 5: NETWORKING PROXIES & BACKUP VALUTS
-// ============================================================================
-  void _generateAutomatedComedyScript() async {
+  void _fetchCuratedGistJokesRepository() async {
     if (mounted) {
       setState(() {
         isLoading = true;
@@ -330,101 +240,131 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         isPlaybackReviewPhase = false;
       });
     }
-    
-    // Ensure your URL matches exactly: https://generate-script-t3yutwgarq-uc.a.run.app
-    const String completeBackendLiveUrl = "https://generate-script-t3yutwgarq-uc.a.run.app";
+
+    // 🌐 SCALING REPOSITORY VAULT PATH: Simply swap out the hash code with your live Gist raw address
+    const String staticGistRepositoryUrl = "https://githubusercontent.com";
     
     try {
-      final String freshCallSeedToken = DateTime.now().millisecondsSinceEpoch.toString();
-
-      final http.Response response = await http.post(
-        Uri.parse(completeBackendLiveUrl),
-        headers: {"Content-Type": "application/json", "Accept": "application/json"},
-        body: json.encode({
-          "language": widget.languageName,
-          "seed": freshCallSeedToken
-        }),
-      ).timeout(const Duration(seconds: 12));
-
+      final http.Response response = await http.get(Uri.parse(staticGistRepositoryUrl)).timeout(const Duration(seconds: 4));
+      
       if (response.statusCode == 200) {
-        final Map<String, dynamic> outerJsonBox = json.decode(response.body);
-        final String rawTextPayload = outerJsonBox['payload']?.toString().trim() ?? "";
+        final List<dynamic> downloadedJsonList = json.decode(response.body);
         
-        if (rawTextPayload.contains("--")) {
-          final List<String> segments = rawTextPayload.split("--");
-          final String finalForeign = segments.first.trim().replaceAll('"', '');
-          final String finalEnglish = segments.last.trim().replaceAll('"', '');
+        // Filter out any joke dictionaries the user has already completed this active app session
+        List<dynamic> availablePool = downloadedJsonList.where((item) {
+          return !_sessionHistoryKeys.contains(item["english"] as String);
+        }).toList();
 
-          if (finalEnglish.isNotEmpty && finalForeign.isNotEmpty) {
-            final List<String> computedWords = finalForeign.split(" ").where((String w) {
-              return w.trim().isNotEmpty;
-            }).toList();
-            
-            if (mounted) {
-              setState(() {
-                finalEnglishMeaning = finalEnglish;
-                compiledForeignSentence = finalForeign;
-                currentWordIndex = 0;
-                _currentFlashcardWord = computedWords;
-                isLoading = false;
-                isRehearsalPhase = true;
-              });
-              _startCueCardCacheImpressionTimer();
-            }
-            return;
-          }
+        if (availablePool.isEmpty) {
+          _sessionHistoryKeys.clear();
+          availablePool = downloadedJsonList;
         }
+
+        final Random randomSeed = Random();
+        final Map<String, dynamic> chosenJokeMap = availablePool[randomSeed.nextInt(availablePool.length)] as Map<String, dynamic>;
+        _executeLocalPayloadParsingCore(chosenJokeMap);
+        return;
       }
     } catch (_) {}
-    _executeLocalBackupComedyMatrix();
+    
+    // 🛡️ Fallback Failure Shield: If user has no internet connection, load an immediate safety map pair
+    _executeLocalPayloadParsingCore({
+      "english": "I used to think I was indecisive, but now I’m not so sure.",
+      "translations": {
+        "Spanish": "Antes pensaba que era indeciso, pero ahora no estoy tan seguro.",
+        "French": "Avant je pensais que j'étais indécis, mais maintenant je n'en suis plus si sûr."
+      }
+    });
   }
 
-  void _executeLocalBackupComedyMatrix() {
-    final Random rand = Random();
-    final List<Map<String, String>> localBackupVault = [
-      {
-        "foreign": "Por favor, ignore mi correo anterior porque mi jefe es un completo tirano insoportable",
-        "english": "Please completely ignore my previous email because my manager is a massive micromanaging dictator"
-      },
-      {
-        "foreign": "Gracias por su amable sugerencia pero voy a ignorar absolutamente todo lo que acaba de decir",
-        "english": "Thank you for your lovely feedback but I am actively going to ignore your entire opinion"
-      },
-      {
-        "foreign": "Vamos a reunirnos la próxima semana para hablar de cosas que no nos importan a ninguno",
-        "english": "Let us connect next week to discuss mind-numbing parameters that neither of us actually care about"
-      }
-    ];
-    
-    final Map<String, String> chosenPair = localBackupVault[rand.nextInt(localBackupVault.length)];
-    final List<String> computedWords = chosenPair["foreign"]!.split(" ").where((String w) {
+  void _executeLocalPayloadParsingCore(Map<String, dynamic> chosenJokeMap) {
+    final String englishKey = chosenJokeMap["english"] as String;
+    final Map<String, dynamic> translationsBox = chosenJokeMap["translations"] as Map<String, dynamic>;
+    final String targetTranslationText = (translationsBox[widget.languageName] ?? translationsBox["Spanish"] ?? englishKey) as String;
+
+    _sessionHistoryKeys.add(englishKey);
+
+    final List<String> parsedWordsList = targetTranslationText.split(" ").where((String w) {
       return w.trim().isNotEmpty;
     }).toList();
-    
+
     if (mounted) {
       setState(() {
-        compiledForeignSentence = chosenPair["foreign"]!;
-        finalEnglishMeaning = chosenPair["english"]!;
-        _currentFlashcardWord = computedWords;
+        finalEnglishMeaning = englishKey;
+        compiledForeignSentence = targetTranslationText;
+        _currentFlashcardWord = parsedWordsList;
         currentWordIndex = 0;
         isLoading = false;
         isRehearsalPhase = true;
       });
-      _startCueCardCacheImpressionTimer(); // Initialize the 1.2-second ad visibility window layer
+      _startCueCardCacheImpressionTimer();
     }
+  }
+  void _executeVoicePronunciationEngine(String textToSpeak) async {
+    if (textToSpeak.isEmpty || textToSpeak == "LOADING...") return;
+    String ttsLocaleCode = "es-ES";
+    switch (widget.languageName) {
+      case 'Spanish': ttsLocaleCode = "es-ES"; break;
+      case 'French': ttsLocaleCode = "fr-FR"; break;
+      case 'German': ttsLocaleCode = "de-DE"; break;
+      case 'Italian': ttsLocaleCode = "it-IT"; break;
+      case 'Japanese': ttsLocaleCode = "ja-JP"; break;
+      case 'Portuguese': ttsLocaleCode = "pt-PT"; break;
+      case 'Dutch': ttsLocaleCode = "nl-NL"; break;
+      case 'Swedish': ttsLocaleCode = "sv-SE"; break;
+      case 'Korean': ttsLocaleCode = "ko-KR"; break;
+    }
+    await _flutterTts.setLanguage(ttsLocaleCode);
+    await _flutterTts.setSpeechRate(0.42);
+    await _flutterTts.speak(textToSpeak);
   }
 
   void _triggerAdRefresherIncrement() {
-    if (mounted) {
-      setState(() {
-        adRefreshCounterSeed++;
-      });
-    }
+    if (mounted) { setState(() { adRefreshCounterSeed++; }); }
   }
 
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 1: MASTER REHEARSAL ROUTER
-// ============================================================================
+  void _startRecordingCountdownSequence() {
+    if (!mounted) return;
+    setState(() { isCountdownRunning = true; productionCountdown = 3; _isScrollFinished = false; });
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      if (!mounted) { timer.cancel(); return; }
+      if (productionCountdown > 1) {
+        setState(() { productionCountdown--; });
+      } else {
+        timer.cancel();
+        setState(() { isCountdownRunning = false; isCutButtonLocked = true; });
+        _startLiveStudioVideoCaptureStream();
+      }
+    });
+  }
+
+  void _startLiveStudioVideoCaptureStream() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+    try {
+      await _cameraController!.startVideoRecording();
+      if (mounted) { setState(() { isCutButtonLocked = false; }); }
+      _initializeDualScrollingTeleprompter();
+    } catch (_) {}
+  }
+
+  void _initializeDualScrollingTeleprompter() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
+        final double maxScroll = _prompterScrollController!.position.maxScrollExtent;
+        _prompterScrollController!.animateTo(maxScroll, duration: const Duration(seconds: 20), curve: Curves.linear).then((_) {
+          if (mounted) { setState(() { _isScrollFinished = true; }); }
+        });
+      }
+    });
+  }
+
+  void _stopRecordingAndLaunchInterstitialVideoAd() async {
+    if (_cameraController == null || !_cameraController!.value.isRecordingVideo) return;
+    try {
+      await _cameraController!.stopVideoRecording();
+      if (mounted) { setState(() { isPlaybackReviewPhase = true; isRecordingPhase = false; }); }
+    } catch (_) {}
+  }
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -502,9 +442,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ),
     );
   }
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 2: GIANT FLASHCARD & CONTRAST BUTTONS
-// ============================================================================
+
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -521,18 +459,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
-              BoxShadow(
-                color: Colors.red.shade900.withOpacity(0.55),
-                blurRadius: 16,
-                spreadRadius: 2,
-                offset: const Offset(0, 6),
-              ),
+              BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6)),
             ],
             gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
           ),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 140), // 140 vertical padding expands the box drastically
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 140), // Massive 140 height profile padding
             decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
             child: _isDelayActive 
                 ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
@@ -547,13 +480,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           fontWeight: FontWeight.w900,
                           fontFamily: 'Arial',
                           letterSpacing: 0.5,
-                          foreground: Paint()
-                            ..style = PaintingStyle.stroke
-                            ..strokeWidth = 1.5
-                            ..color = const Color(0xFFD4AF37),
-                          shadows: [
-                            Shadow(offset: const Offset(0, 4), blurRadius: 10, color: Colors.red.shade900.withOpacity(0.85)),
-                          ],
+                          foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37),
+                          shadows: [Shadow(offset: const Offset(0, 4), blurRadius: 10, color: Colors.red.shade900.withOpacity(0.85))],
                         ),
                       ),
                       Text(
@@ -579,22 +507,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12), 
                   gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.4), // White blurred backdrop drop shadow
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))],
                 ),
                 child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent, 
-                    shadowColor: Colors.transparent, 
-                    foregroundColor: Colors.black, // High-contrast black button icon text face
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                   onPressed: _isDelayActive ? null : () {
                     _executeVoicePronunciationEngine(activeCueWord);
                     _triggerAdRefresherIncrement();
@@ -611,22 +527,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12), 
                   gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.4), // White blurred backdrop drop shadow
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))],
                 ),
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent, 
-                    shadowColor: Colors.transparent, 
-                    foregroundColor: Colors.black, // High-contrast black button font face
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                   onPressed: _isDelayActive ? null : () {
                     _advanceWordIndexTrackerOrRouteNext();
                     _triggerAdRefresherIncrement();
@@ -640,9 +544,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ],
     );
   }
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (A) - SPLIT 3: AUTOPLAY FULL SENTENCE CANVAS
-// ============================================================================
   Widget _buildFullSentencePresentationScreen() {
     final List<Map<String, dynamic>> countryGridMap = [
       {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
@@ -662,7 +563,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
 
-    // 🛡️ Lifecycle Hook Trigger: Force-executes speech layout synchronization immediately on UI frame paint
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && isFullSentencePhase) {
         _executeVoicePronunciationEngine(compiledForeignSentence);
@@ -674,10 +574,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-              child: _buildAdMobPlaceholderBannerUnit("TOP SENTENCE BANNER AD"),
-            ),
+            Padding(padding: const EdgeInsets.only(top: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("TOP SENTENCE BANNER AD")),
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
@@ -685,35 +582,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        "THE FULL CHALLENGE SENTENCE:",
-                        style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
-                      ),
+                      const Text("THE FULL CHALLENGE SENTENCE:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                       const SizedBox(height: 16),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.red.shade900.withOpacity(0.55),
-                              blurRadius: 16,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
+                          boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))],
                           gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
                         ),
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56),
                           decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
-                          child: Text(
-                            compiledForeignSentence, 
-                            textAlign: TextAlign.center, 
-                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)
-                          ),
+                          child: Text(compiledForeignSentence, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                         ),
                       ),
                       const SizedBox(height: 48),
@@ -725,26 +608,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12), 
                                 gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.4),
-                                    blurRadius: 12,
-                                    spreadRadius: 1,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                                boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))],
                               ),
                               child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent, 
-                                  shadowColor: Colors.transparent, 
-                                  foregroundColor: Colors.black,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-                                ),
-                                onPressed: () {
-                                  _executeVoicePronunciationEngine(compiledForeignSentence);
-                                  _triggerAdRefresherIncrement();
-                                },
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () { _executeVoicePronunciationEngine(compiledForeignSentence); _triggerAdRefresherIncrement(); },
                                 icon: const Icon(Icons.volume_up, size: 18, color: Colors.black),
                                 label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1)),
                               ),
@@ -757,26 +625,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12), 
                                 gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.4),
-                                    blurRadius: 12,
-                                    spreadRadius: 1,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                                boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))],
                               ),
                               child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent, 
-                                  shadowColor: Colors.transparent, 
-                                  foregroundColor: Colors.black,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-                                ),
-                                onPressed: () {
-                                  setState(() { isFullSentencePhase = false; isRecordingPhase = true; });
-                                  _startRecordingCountdownSequence();
-                                },
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () { setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); },
                                 child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
                               ),
                             ),
@@ -788,75 +641,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
-              child: _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD"),
-            ),
+            Padding(padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD")),
           ],
         ),
       ),
     );
   }
-
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (B): FRAMED STUDIO HARDWARE & STEADY PROMPTER
-// ============================================================================
-  void _startRecordingCountdownSequence() {
-    if (!mounted) return;
-    setState(() {
-      isCountdownRunning = true;
-      productionCountdown = 3;
-      _isScrollFinished = false; // Reset the button lock parameter for new takes
-    });
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (productionCountdown > 1) {
-        setState(() { productionCountdown--; });
-      } else {
-        timer.cancel();
-        setState(() {
-          isCountdownRunning = false;
-          isCutButtonLocked = true;
-        });
-        _startLiveStudioVideoCaptureStream();
-      }
-    });
-  }
-
-  void _startLiveStudioVideoCaptureStream() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
-    try {
-      await _cameraController!.startVideoRecording();
-      if (mounted) {
-        setState(() { isCutButtonLocked = false; });
-      }
-      _initializeDualScrollingTeleprompter();
-    } catch (_) {}
-  }
-
-  void _initializeDualScrollingTeleprompter() {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
-        final double maxScroll = _prompterScrollController!.position.maxScrollExtent;
-        
-        // ⏱️ Half Speed Matrix: Expanded duration to 20 seconds makes text scroll perfectly steady
-        _prompterScrollController!.animateTo(
-          maxScroll,
-          duration: const Duration(seconds: 20),
-          curve: Curves.linear,
-        ).then((_) {
-          // Unlocks the conditional rendering of the Cut button the exact millisecond the text finishes its path
-          if (mounted) {
-            setState(() { _isScrollFinished = true; });
-          }
-        });
-      }
-    });
-  }
-
   Widget _buildLiveStudioRecordingScreen() {
     final List<Map<String, dynamic>> countryGridMap = [
       {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
@@ -875,7 +665,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       orElse: () => {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
     );
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
-
     final String continuousScrollerText = "${compiledForeignSentence.toUpperCase()}               ${finalEnglishMeaning.toUpperCase()}          ";
 
     return Scaffold(
@@ -885,106 +674,42 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             children: [
-              // 🕹️ STEP 1: BLACK BACKGROUND TELEPROMPTER PANEL LOCATED ABOVE THE CAMERA VIEWPORT FRAME
               Container(
-                height: 64,
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade900),
-                ),
+                height: 64, width: double.infinity, margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade900)),
                 child: isCountdownRunning
                     ? const Center(child: Text("GET READY...", style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2)))
                     : SingleChildScrollView(
-                        controller: _prompterScrollController,
-                        scrollDirection: Axis.horizontal,
-                        physics: const NeverScrollableScrollPhysics(),
-                        child: Center(
-                          child: Text(
-                            continuousScrollerText,
-                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 2.0),
-                          ),
-                        ),
+                        controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(),
+                        child: Center(child: Text(continuousScrollerText, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 2.0))),
                       ),
               ),
-
-              // 🎯 STEP 2: FRAMED CAMERA VIEWPORT COMPARTMENT DESIGNED EXACTLY LIKE THE CUE CARDS
               Expanded(
                 child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.red.shade900.withOpacity(0.55),
-                        blurRadius: 16,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                    gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                  ),
+                  width: double.infinity, padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: Stack(
                       children: [
-                        Positioned.fill(
-                          child: (_cameraController == null || !_cameraController!.value.isInitialized)
-                              ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber)))
-                              : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!)),
-                        ),
-                        if (isCountdownRunning)
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.5),
-                              child: Center(
-                                child: Text(
-                                  "$productionCountdown",
-                                  style: const TextStyle(color: Colors.amber, fontSize: 80, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ),
+                        Positioned.fill(child: (_cameraController == null || !_cameraController!.value.isInitialized) ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber))) : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!))),
+                        if (isCountdownRunning) Positioned.fill(child: Container(color: Colors.black.withOpacity(0.5), child: Center(child: Text("$productionCountdown", style: const TextStyle(color: Colors.amber, fontSize: 80, fontWeight: FontWeight.bold))))),
                       ],
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-
-              // 🧱 STEP 3: HIGH-CONTRAST CUT BUTTON WITH NEON AURA GLOW — CONDITIONALLY HIDDEN UNTIL SCROLL FINISHES
               SizedBox(
-                height: 54,
-                width: double.infinity,
+                height: 54, width: double.infinity,
                 child: AnimatedOpacity(
-                  opacity: _isScrollFinished ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
+                  opacity: _isScrollFinished ? 1.0 : 0.0, duration: const Duration(milliseconds: 300),
                   child: IgnorePointer(
                     ignoring: !_isScrollFinished,
                     child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white.withOpacity(0.4),
-                            blurRadius: 12,
-                            spreadRadius: 1,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]),
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                         onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd,
                         child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2)),
                       ),
@@ -1000,229 +725,39 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 
-// ============================================================================
-// WATCH YOUR LANGUAGE // PART 5 (C): AD GATES, PLAYBACK DECK & SYSTEM DISPOSES
-// ============================================================================
-  void _stopRecordingAndLaunchInterstitialVideoAd() async {
-    if (_cameraController == null || !_cameraController!.value.isRecordingVideo) {
-      return;
-    }
-    try {
-      final XFile videoFile = await _cameraController!.stopVideoRecording();
-      if (mounted) {
-        setState(() {
-          isRecordingPhase = false;
-        });
-      }
-      _displayFullScreenInterstitialVideoAdModal(videoFile.path);
-    } catch (_) {}
-  }
-
-  void _displayFullScreenInterstitialVideoAdModal(final String cachedVideoLocationPath) {
-    if (!mounted) {
-      return;
-    }
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return Scaffold(
-          backgroundColor: Colors.black,
-          body: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setModalState) {
-              int videoAdSecondsRemaining = 5;
-              
-              Timer.periodic(const Duration(seconds: 1), (Timer t) {
-                if (videoAdSecondsRemaining > 1) {
-                  setModalState(() {
-                    videoAdSecondsRemaining--;
-                  });
-                } else {
-                  t.cancel();
-                  Navigator.of(dialogContext).pop(); 
-                  if (mounted) {
-                    setState(() {
-                      isPlaybackReviewPhase = true;
-                    });
-                  }
-                }
-              });
-
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.ondemand_video, color: Colors.amber, size: 75),
-                    const SizedBox(height: 24),
-                    const Text(
-                      "📽️ PLAYING SPONSORED AD REWARD...",
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.1),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "RETURNING TO APP IN: $videoAdSecondsRemaining SECONDS",
-                      style: const TextStyle(color: Colors.grey, fontSize: 13),
-                    ),
-                    const SizedBox(height: 32),
-                    const SizedBox(width: 36, height: 36, child: CircularProgressIndicator(color: Colors.amber, strokeWidth: 3)),
-                  ],
-                ),
-              );
-            }
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildPostAdPlaybackReviewScreen() {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAdMobPlaceholderBannerUnit("TOP PLAYBACK REVIEW BANNER AD"),
-              const SizedBox(height: 16),
-              const Text(
-                "WATCH YOUR REACTION TAKE:",
-                style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                height: 180,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade800),
-                ),
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.video_library, color: Colors.amber, size: 48),
-                      SizedBox(height: 10),
-                      Text(
-                        "🎬 YOUR RECORDED TAKE PLAYBACK SUCCESSFUL",
-                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "WHAT YOU ACTUALLY SAID:",
-                style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade900)),
-                child: Text(
-                  finalEnglishMeaning,
-                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber.shade700,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed: () {
-                    _generateAutomatedComedyScript(); 
-                  },
-                  child: const Text("GO AGAIN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 1.1)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.grey.shade700, width: 1.5),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop(); 
-                  },
-                  child: const Text("TRY ANOTHER LANGUAGE", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.1)),
-                ),
-              ),
-              const Spacer(),
-              _buildAdMobPlaceholderBannerUnit("BOTTOM PLAYBACK REVIEW BANNER AD"),
-            ],
-          ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.green, size: 72),
+            const SizedBox(height: 16),
+            const Text("REVIEW SCREEN PLACEHOLDER", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () { Navigator.pop(context); },
+              child: const Text("PLAY AGAIN"),
+            )
+          ],
         ),
       ),
     );
   }
 
-  void _executeVoicePronunciationEngine(final String targetWord) async {
-    if (targetWord.isEmpty || targetWord == "LOADING...") {
-      return;
-    }
-    String targetedLocaleCode = "en-US";
-    final String currentLang = widget.languageName;
-    if (currentLang == "Spanish") { targetedLocaleCode = "es-ES"; }
-    else if (currentLang == "French") { targetedLocaleCode = "fr-FR"; }
-    else if (currentLang == "German") { targetedLocaleCode = "de-DE"; }
-    else if (currentLang == "Italian") { targetedLocaleCode = "it-IT"; }
-    try {
-      await _flutterTts.setLanguage(targetedLocaleCode);
-      await _flutterTts.setSpeechRate(0.42);
-      await _flutterTts.speak(targetWord);
-    } catch (_) {}
-  }
-
-  Widget _buildAdMobPlaceholderBannerUnit(final String adBannerTitleLabel) {
+  Widget _buildAdMobPlaceholderBannerUnit(String label) {
     return Container(
-      key: ValueKey<String>("$adBannerTitleLabel-$adRefreshCounterSeed"),
-      width: double.infinity,
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade900, 
-        borderRadius: BorderRadius.circular(6), 
-        border: Border.all(color: Colors.amber.withOpacity(0.2)),
-      ),
-      child: Stack(
-        children: [
-          Center(
-            child: Text(
-              "$adBannerTitleLabel // UPDATED_ID: $adRefreshCounterSeed", 
-              style: TextStyle(color: Colors.amber.shade400, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.1),
-            ),
-          ),
-          Positioned(
-            top: 4, 
-            left: 6, 
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1), 
-              decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(2)), 
-              child: const Text("AD", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 7)),
-            ),
-          ),
-        ],
-      ),
+      height: 50, width: double.infinity,
+      decoration: BoxDecoration(color: Colors.grey.shade900, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade800)),
+      child: Center(child: Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold))),
     );
   }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
-    _cameraController?.dispose();
     _prompterScrollController?.dispose();
+    _cameraController?.dispose();
     super.dispose();
   }
 }
