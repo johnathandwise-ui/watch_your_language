@@ -227,7 +227,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 9 OF 22
-// GITHUB REST API ENDPOINT ENGLISH DOWNLOADER
+// DIRECT RAW GIST URL COMPONENT TRAFFIC LOADER
 // ==========================================
   void _fetchCuratedGistJokesRepository() async {
     if (mounted) {
@@ -236,21 +236,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         isRecordingPhase = false; isPlaybackReviewPhase = false;
       });
     }
-    const String apiDomain = "://github.com";
-    const String gistEndpointID = "3d31638a9fed18672921e7eee0dafb3e";
-    const String targetFileName = "phrases.json";
-    const String completeRestApiUrl = "https://$apiDomain/gists/$gistEndpointID";
+    const String d1 = "gist.githubusercontent.com";
+    const String d2 = "johnathandwise-ui";
+    const String d3 = "3d31638a9fed18672921e7eee0dafb3e";
+    const String d4 = "raw/2f770dcad4ec0ae7d1aff5412a9a1a4f561af598";
+    const String d5 = "phrases.json";
+    const String activeDirectRawLink = "https://$d1/$d2/$d3/$d4/$d5";
     
     try {
-      final http.Response response = await http.get(Uri.parse(completeRestApiUrl), headers: {"Accept": "application/vnd.github+json"}).timeout(const Duration(seconds: 6));
+      final http.Response response = await http.get(Uri.parse(activeDirectRawLink)).timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
-        final Map<String, dynamic> gistDataBox = json.decode(response.body);
-        final Map<String, dynamic> filesMap = gistDataBox["files"] as Map<String, dynamic>;
-        final Map<String, dynamic> targetedFileBox = filesMap[targetFileName] as Map<String, dynamic>;
-        final String rawJsonTextContent = targetedFileBox["content"] as String;
-        final List<dynamic> downloadedJsonList = json.decode(rawJsonTextContent);
-        
-        // Filter down your massive pool of pure English lines
+        final List<dynamic> downloadedJsonList = json.decode(response.body);
         List<dynamic> availablePool = downloadedJsonList.where((item) => !_sessionHistoryKeys.contains(item["english"] as String)).toList();
         if (availablePool.isEmpty) { _sessionHistoryKeys.clear(); availablePool = downloadedJsonList; }
         final Random randomSeed = Random();
@@ -259,12 +255,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         return;
       }
     } catch (_) {}
-    _translateAndParseEnglishPayload("My bank account is basically a daily reminder of my poor impulse control.");
+    _translateAndParseEnglishPayload("My grandmother's parrot stole my underwear.");
   }
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 10 OF 22
-// GLOBAL API TRANSLATION MACHINE & WORD SLICER
+// MATRIX TRANSLATION STRING EXTRACTOR & CHOPPER
 // ==========================================
   void _translateAndParseEnglishPayload(String englishSentence) async {
     _sessionHistoryKeys.add(englishSentence);
@@ -287,7 +283,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       final http.Response response = await http.get(Uri.parse(translationEngineUrl)).timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
         final List<dynamic> outerJsonArray = json.decode(response.body);
-        translatedSentence = outerJsonArray[0][0][0].toString().trim();
+        if (outerJsonArray.isNotEmpty && outerJsonArray[0] != null) {
+          final List<dynamic> translationSegments = outerJsonArray[0] as List<dynamic>;
+          if (translationSegments.isNotEmpty && translationSegments[0] != null) {
+            translatedSentence = translationSegments[0][0].toString().trim();
+          }
+        }
       }
     } catch (_) {}
 
