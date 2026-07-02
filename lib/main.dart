@@ -242,7 +242,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     }
 
     // 🌐 SCALING REPOSITORY VAULT PATH: Simply swap out the hash code with your live Gist raw address
-    const String staticGistRepositoryUrl = "https://githubusercontent.com";
+    const String staticGistRepositoryUrl = "https://gist.github.com/johnathandwise-ui/3d31638a9fed18672921e7eee0dafb3e.js";
     
     try {
       final http.Response response = await http.get(Uri.parse(staticGistRepositoryUrl)).timeout(const Duration(seconds: 4));
