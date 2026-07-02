@@ -230,7 +230,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       setState(() { isRehearsalPhase = false; isFullSentencePhase = true; });
     }
   }
-  void _fetchCuratedGistJokesRepository() async {
+      void _fetchCuratedGistJokesRepository() async {
     if (mounted) {
       setState(() {
         isLoading = true;
@@ -241,16 +241,23 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       });
     }
 
-    // 🌐 SCALING REPOSITORY VAULT PATH: Simply swap out the hash code with your live Gist raw address
-    const String staticGistRepositoryUrl = "https://gist.github.com/johnathandwise-ui/3d31638a9fed18672921e7eee0dafb3e.js";
+    // 🌐 PIECE-BY-PIECE UN-TRUNCATED RAW DATA LINK CONFIGURATION
+    const String gistDomain = "://githubusercontent.com";
+    const String gistAccount = "johnathandwise-ui";
+    const String gistHashID = "3d31638a9fed18672921e7eee0dafb3e";
+    const String gistCommitID = "3dcd96f4f60bba071e52d496ac5b6bba0349d5f5";
+    const String gistFileName = "phrases.json";
+    
+    // Assembles your exact raw link address perfectly behind the scenes
+    const String trueGistDataStreamUrl = "https://$gistDomain/$gistAccount/$gistHashID/raw/$gistCommitID/$gistFileName";
     
     try {
-      final http.Response response = await http.get(Uri.parse(staticGistRepositoryUrl)).timeout(const Duration(seconds: 4));
+      final http.Response response = await http.get(Uri.parse(trueGistDataStreamUrl)).timeout(const Duration(seconds: 6));
       
       if (response.statusCode == 200) {
         final List<dynamic> downloadedJsonList = json.decode(response.body);
         
-        // Filter out any joke dictionaries the user has already completed this active app session
+        // Filter down the data array to select lines the player hasn't cleared this session
         List<dynamic> availablePool = downloadedJsonList.where((item) {
           return !_sessionHistoryKeys.contains(item["english"] as String);
         }).toList();
@@ -267,7 +274,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
     
-    // 🛡️ Fallback Failure Shield: If user has no internet connection, load an immediate safety map pair
+    // 🛡️ Fallback Shield: Instantly executes localized layout if an active internet drop occurs
     _executeLocalPayloadParsingCore({
       "english": "I used to think I was indecisive, but now I’m not so sure.",
       "translations": {
