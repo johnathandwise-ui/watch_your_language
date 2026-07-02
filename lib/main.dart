@@ -227,7 +227,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 9 OF 22
-// GITHUB REST API ENDPOINT MATRIX DOWNLOADER
+// GITHUB REST API ENDPOINT ENGLISH DOWNLOADER
 // ==========================================
   void _fetchCuratedGistJokesRepository() async {
     if (mounted) {
@@ -250,32 +250,53 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         final String rawJsonTextContent = targetedFileBox["content"] as String;
         final List<dynamic> downloadedJsonList = json.decode(rawJsonTextContent);
         
+        // Filter down your massive pool of pure English lines
         List<dynamic> availablePool = downloadedJsonList.where((item) => !_sessionHistoryKeys.contains(item["english"] as String)).toList();
         if (availablePool.isEmpty) { _sessionHistoryKeys.clear(); availablePool = downloadedJsonList; }
         final Random randomSeed = Random();
         final Map<String, dynamic> chosenJokeMap = availablePool[randomSeed.nextInt(availablePool.length)] as Map<String, dynamic>;
-        _executeLocalPayloadParsingCore(chosenJokeMap);
+        _translateAndParseEnglishPayload(chosenJokeMap["english"] as String);
         return;
       }
     } catch (_) {}
-    _executeLocalPayloadParsingCore({"english": "Poor impulse control joke.", "translations": {"Spanish": "Mi cuenta bancaria es un recordatorio."}});
+    _translateAndParseEnglishPayload("My bank account is basically a daily reminder of my poor impulse control.");
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 10 OF 22
-// PAYLOAD STRING EXPLODER & REHEARSAL INITIALIZER
+// GLOBAL API TRANSLATION MACHINE & WORD SLICER
 // ==========================================
-  void _executeLocalPayloadParsingCore(Map<String, dynamic> chosenJokeMap) {
-    final String englishKey = chosenJokeMap["english"] as String;
-    final Map<String, dynamic> translationsBox = chosenJokeMap["translations"] as Map<String, dynamic>;
-    final String targetTranslationText = (translationsBox[widget.languageName] ?? translationsBox["Spanish"] ?? englishKey) as String;
+  void _translateAndParseEnglishPayload(String englishSentence) async {
+    _sessionHistoryKeys.add(englishSentence);
+    String targetLangCode = "es";
+    switch (widget.languageName) {
+      case 'Spanish': targetLangCode = "es"; break;
+      case 'French': targetLangCode = "fr"; break;
+      case 'German': targetLangCode = "de"; break;
+      case 'Italian': targetLangCode = "it"; break;
+      case 'Japanese': targetLangCode = "ja"; break;
+      case 'Portuguese': targetLangCode = "pt"; break;
+      case 'Dutch': targetLangCode = "nl"; break;
+      case 'Swedish': targetLangCode = "sv"; break;
+      case 'Korean': targetLangCode = "ko"; break;
+    }
 
-    _sessionHistoryKeys.add(englishKey);
-    final List<String> parsedWordsList = targetTranslationText.split(" ").where((String w) => w.trim().isNotEmpty).toList();
+    String translatedSentence = englishSentence;
+    try {
+      final String translationEngineUrl = "https://googleapis.com{Uri.encodeComponent(englishSentence)}";
+      final http.Response response = await http.get(Uri.parse(translationEngineUrl)).timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        final List<dynamic> outerJsonArray = json.decode(response.body);
+        translatedSentence = outerJsonArray[0][0][0].toString().trim();
+      }
+    } catch (_) {}
+
+    final List<String> parsedWordsList = translatedSentence.split(" ").where((String w) => w.trim().isNotEmpty).toList();
 
     if (mounted) {
       setState(() {
-        finalEnglishMeaning = englishKey;
-        compiledForeignSentence = targetTranslationText;
+        finalEnglishMeaning = englishSentence;
+        compiledForeignSentence = translatedSentence;
         _currentFlashcardWord = parsedWordsList;
         currentWordIndex = 0;
         isLoading = false;
@@ -284,6 +305,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       _startCueCardCacheImpressionTimer();
     }
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 11 OF 22
 // 1.2S BANNER WINDOW TIMERS & AUTO PROMPTS
