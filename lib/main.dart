@@ -194,8 +194,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   void initState() {
     super.initState();
     _prompterScrollController = ScrollController();
+    
+    // 🔥 Force state clearance to break internal layout caching parameters
+    finalEnglishMeaning = "";
+    compiledForeignSentence = "";
+    _currentFlashcardWord = [];
+    currentWordIndex = 0;
+    
     _bootstrapStudioHardware();
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 8 OF 22
 // HARDWARE FRONT LENS ALLOCATION BOOT
