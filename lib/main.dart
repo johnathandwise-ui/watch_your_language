@@ -306,13 +306,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
         if (outerRawData is List && outerRawData.isNotEmpty) {
-          final List levelOneBox = outerRawData;
-          if (levelOneBox[0] is List) {
+          final List levelOneBox = outerRawData as List;
+          if (levelOneBox.isNotEmpty && levelOneBox[0] is List) {
             final List levelTwoBox = levelOneBox[0] as List;
             if (levelTwoBox.isNotEmpty && levelTwoBox[0] is List) {
-              // 🎯 High-Precision Index Deep Dive extracts ONLY the pure translated string text data
               final List targetTextChunkPair = levelTwoBox[0] as List;
               if (targetTextChunkPair.isNotEmpty && targetTextChunkPair[0] != null) {
+                // 🎯 Extracting the absolute index 0 string fixes the bracket issue across all rooms
                 translatedSentence = targetTextChunkPair[0].toString().trim();
               }
             }
@@ -321,11 +321,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
 
-    // Smart word splitter runs safely on clean text data arrays with zero brackets remaining
+    // Smart phrase splitter structures layout arrays cleanly without leftover meta tokens
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
       parsedWordsList = translatedSentence.split(RegExp(r'[、。，．\s]+')).where((String w) => w.trim().isNotEmpty).toList();
-      // Safe phrase splitter limits cards to comfortable conversational pieces
       if (parsedWordsList.length <= 1 && translatedSentence.length > 8) {
         int splitIndex = (translatedSentence.length / 2).floor();
         parsedWordsList = [
