@@ -644,15 +644,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
     final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     
-    WidgetsBinding.instance.addPostFrameCallback((_) { 
-      if (mounted && isFullSentencePhase) { 
-        Future.delayed(const Duration(milliseconds: 350), () {
-          if (mounted && isFullSentencePhase) {
-            _executeVoicePronunciationEngine(compiledForeignSentence);
-          }
-        });
-      } 
-    });
+    // 🔕 FIXED: Auto-play post-frame lifecycle trigger completely removed to keep this screen dead silent upon landing
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -747,7 +739,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               ),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                                onPressed: () { setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); },
+                                // 🎯 LOCKED: "YOUR TURN" button is completely disabled if the audio is actively playing out loud
+                                onPressed: _isSpeakingActive ? null : () { setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); },
                                 child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
                               ),
                             ),
@@ -768,6 +761,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ),
     );
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
 // FLAG-FRAMED BRAND LOGO OVERLAY STUDIO CAM
