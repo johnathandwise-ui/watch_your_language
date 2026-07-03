@@ -463,7 +463,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 22
-// STAGGERED DUAL-TIMELINE TIMING LIFECYCLES
+// ENFORCED SEQUENTIAL SCROLL TIMELINE LOOPS
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -479,23 +479,23 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
         final double maxScrollForeign = _prompterScrollController!.position.maxScrollExtent;
         
-        // 🎯 TIMELINE 1: Foreign Sentence scrolls at a steady reading pace for 15 seconds
+        // 🎯 TIMELINE 1: Top Foreign box scrolls smoothly at a steady pace for 15 seconds
         _prompterScrollController!.animateTo(maxScrollForeign, duration: const Duration(seconds: 15), curve: Curves.linear).then((_) {
           if (!mounted) return;
           
-          // Trigger the bottom translation layer to reveal and begin its sequence
+          // 🔥 Hard Stop Sync: Explicitly activate translation visibility ONLY after foreign sentence finishes
           setState(() { _isTranslationScrollActive = true; });
           
-          Future.delayed(const Duration(milliseconds: 200), () {
+          // Delay the secondary timeline kickoff by 400ms to allow a crisp breathing pause for the actor
+          Future.delayed(const Duration(milliseconds: 400), () {
             if (_translationScrollController != null && _translationScrollController!.hasClients) {
               final double maxScrollEnglish = _translationScrollController!.position.maxScrollExtent;
               
-              // 🎯 TIMELINE 2: Translation scrolls underneath for another steady 15 seconds
+              // 🎯 TIMELINE 2: Bottom English box scrolls underneath for another steady 15 seconds
               _translationScrollController!.animateTo(maxScrollEnglish, duration: const Duration(seconds: 15), curve: Curves.linear).then((_) {
                 if (mounted) { setState(() { _isScrollFinished = true; }); }
               });
             } else {
-              // Safety fallback if string is short enough that it doesn't need to scroll
               if (mounted) { setState(() { _isScrollFinished = true; }); }
             }
           });
@@ -508,9 +508,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     if (_cameraController == null || !_cameraController!.value.isRecordingVideo) return;
     try {
       await _cameraController!.stopVideoRecording();
-      if (mounted) {
-        setState(() { isLoading = true; isRecordingPhase = false; });
-      }
+      if (mounted) { setState(() { isLoading = true; isRecordingPhase = false; }); }
       Timer(const Duration(milliseconds: 2000), () {
         if (mounted) { setState(() { isLoading = false; isPlaybackReviewPhase = true; }); }
       });
@@ -783,7 +781,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
-// SEQUENTIAL STAGGERED PROMPTER STUDIO CANVAS
+// STACKED SEQUENTIAL DISPLAYS WITH SPACING GAP
 // ==========================================
   Widget _buildLiveStudioRecordingScreen() {
     final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'}];
@@ -794,7 +792,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     final String cleanForeignText = compiledForeignSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
     final String cleanEnglishText = finalEnglishMeaning.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').toUpperCase().trim();
     
-    // Generous trailing spaces guarantee text completely clears the view at a steady tempo
     final String primaryScrollerText = "READY? 3... 2... 1... 🎬 >>>  $cleanForeignText                                      ";
     final String secondaryScrollerText = "TRANSLATION: $cleanEnglishText                                      ";
 
@@ -821,16 +818,20 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // 🏛️ DUAL BOX 1: Top Solid Banner Block (Scrolling Foreign Sentence First)
+                              // 🏛️ BOX 1: Top Solid Banner Block (Scrolling Foreign Sentence)
                               Container(
                                 height: 50, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
-                                decoration: BoxDecoration(color: Colors.black.withOpacity(0.85), border: Border(bottom: BorderSide(color: Colors.grey.shade900, width: 1))), 
+                                decoration: BoxDecoration(color: Colors.black.withOpacity(0.85)), 
                                 child: SingleChildScrollView(
                                   controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), 
                                   child: Center(child: Text(primaryScrollerText, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.8))),
                                 ),
                               ),
-                              // 🏛️ DUAL BOX 2: Bottom Solid Banner Block (Un-hides and scrolls ONLY after top box finishes)
+                              
+                              // 🎯 THE GAP: Injected explicit layout spacing margin separating your glass panels
+                              const SizedBox(height: 12),
+                              
+                              // 🏛️ BOX 2: Bottom Translation Banner (Completely un-hides only when prompted by Timeline 1)
                               AnimatedOpacity(
                                 opacity: _isTranslationScrollActive ? 1.0 : 0.0,
                                 duration: const Duration(milliseconds: 400),
@@ -838,7 +839,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                   height: 44, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
                                   decoration: BoxDecoration(color: Colors.black.withOpacity(0.85)), 
                                   child: SingleChildScrollView(
-                                    controller: _translationScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(),
+                                    controller: _isTranslationScrollActive ? _translationScrollController : null, 
+                                    scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(),
                                     child: Center(child: Text(secondaryScrollerText, style: TextStyle(color: Colors.amber.shade400, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.4))),
                                   ),
                                 ),
