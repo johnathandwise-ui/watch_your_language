@@ -307,15 +307,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         final dynamic outerRawData = json.decode(response.body);
         if (outerRawData is List && outerRawData.isNotEmpty) {
           final List levelOneBox = outerRawData as List;
-          final dynamic firstElement = levelOneBox[0];
+          final dynamic firstElement = levelOneBox;
           if (firstElement is List && firstElement.isNotEmpty) {
             final List levelTwoBox = firstElement as List;
-            final dynamic secondElement = levelTwoBox[0];
+            final dynamic secondElement = levelTwoBox;
             if (secondElement is List && secondElement.isNotEmpty) {
-              // 🎯 Fixed: Clean loose type layout mapping removes force casting locks
               final List targetTextChunkPair = secondElement as List;
-              if (targetTextChunkPair.isNotEmpty && targetTextChunkPair[0] != null) {
-                translatedSentence = targetTextChunkPair[0].toString().trim();
+              if (targetTextChunkPair.isNotEmpty && targetTextChunkPair != null) {
+                translatedSentence = targetTextChunkPair.toString().trim();
               }
             }
           }
@@ -323,7 +322,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
 
-    final List<String> parsedWordsList = translatedSentence.split(" ").where((String w) => w.trim().isNotEmpty).toList();
+    // 🎯 SMART WORD CHOPPER: Splits by space for Western text, or by character for Japanese/Korean
+    List<String> parsedWordsList = [];
+    if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
+      parsedWordsList = translatedSentence.characters.map((char) => char.trim()).where((char) => char.isNotEmpty).toList();
+    } else {
+      parsedWordsList = translatedSentence.split(" ").where((String w) => w.trim().isNotEmpty).toList();
+    }
 
     if (mounted) {
       setState(() {
