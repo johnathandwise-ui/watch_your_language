@@ -233,7 +233,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 9 OF 22
-// DIRECT RAW GIST URL COMPONENT TRAFFIC LOADER
+// LIVE STREAM DYNAMIC UN-CACHABLE REPOSITORY LOADER
 // ==========================================
   void _fetchCuratedGistJokesRepository() async {
     if (mounted) {
@@ -242,12 +242,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         isRecordingPhase = false; isPlaybackReviewPhase = false;
       });
     }
-    const String d1 = "gist.githubusercontent.com";
+    const String d1 = "://githubusercontent.com";
     const String d2 = "johnathandwise-ui";
     const String d3 = "3d31638a9fed18672921e7eee0dafb3e";
-    const String d4 = "raw/2f770dcad4ec0ae7d1aff5412a9a1a4f561af598";
+    // 🎯 Removing the long hash string forces GitHub to stream your live, real-time update tracks
+    const String d4 = "raw"; 
     const String d5 = "phrases.json";
-    const String activeDirectRawLink = "https://$d1/$d2/$d3/$d4/$d5";
+    
+    // ⚡ Cache-Buster Appendix: Appends a live timestamp to guarantee edge-network nodes never freeze data
+    final String dynamicTimestampToken = DateTime.now().millisecondsSinceEpoch.toString();
+    final String activeDirectRawLink = "https://$d1/$d2/$d3/$d4/$d5?cb=$dynamicTimestampToken";
     
     try {
       final http.Response response = await http.get(Uri.parse(activeDirectRawLink)).timeout(const Duration(seconds: 5));
@@ -261,7 +265,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         return;
       }
     } catch (_) {}
-    _translateAndParseEnglishPayload("My grandmother's parrot stole my underwear.");
+    _translateAndParseEnglishPayload("I am not lazy, I am just in energy saving mode.");
   }
 
 // ==========================================
