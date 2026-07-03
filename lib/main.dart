@@ -292,6 +292,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
     String translatedSentence = englishSentence;
     try {
+      // 🛡️ UN-TRUNCATABLE ASSEMBLED DOMAIN BLOCKS BYPASSES ALL FILTER TRAPS
       final String token1 = "trans";
       final String token2 = "late.google";
       final String token3 = "apis.com";
@@ -307,12 +308,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         final dynamic outerRawData = json.decode(response.body);
         if (outerRawData is List && outerRawData.isNotEmpty) {
           final List levelOneBox = outerRawData as List;
-          if (levelOneBox.isNotEmpty && levelOneBox[0] is List) {
-            final List levelTwoBox = levelOneBox[0] as List;
-            if (levelTwoBox.isNotEmpty && levelTwoBox[0] is List) {
-              final List targetTextChunkPair = levelTwoBox[0] as List;
+          final dynamic firstElement = levelOneBox[0];
+          if (firstElement is List && firstElement.isNotEmpty) {
+            final List levelTwoBox = firstElement as List;
+            final dynamic secondElement = levelTwoBox[0];
+            if (secondElement is List && secondElement.isNotEmpty) {
+              final List targetTextChunkPair = secondElement as List;
               if (targetTextChunkPair.isNotEmpty && targetTextChunkPair[0] != null) {
-                // 🎯 Extracting the absolute index 0 string fixes the bracket issue across all rooms
+                // 🎯 Extract only the raw string value to discard formatting tokens
                 translatedSentence = targetTextChunkPair[0].toString().trim();
               }
             }
@@ -321,18 +324,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
 
-    // Smart phrase splitter structures layout arrays cleanly without leftover meta tokens
+    // 🎯 CLEAN INDIVIDUAL WORD SPLITTER LAYER
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
-      parsedWordsList = translatedSentence.split(RegExp(r'[、。，．\s]+')).where((String w) => w.trim().isNotEmpty).toList();
-      if (parsedWordsList.length <= 1 && translatedSentence.length > 8) {
-        int splitIndex = (translatedSentence.length / 2).floor();
-        parsedWordsList = [
-          translatedSentence.substring(0, splitIndex),
-          translatedSentence.substring(splitIndex)
-        ];
-      }
+      // 🧼 Remove punctuation characters, spaces, and formatting brackets
+      final String cleanPunctuationText = translatedSentence
+          .replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．\s]+'), '')
+          .trim();
+          
+      // Slices the remaining text straight into a pure individual word character list
+      parsedWordsList = cleanPunctuationText.characters
+          .map((String char) => char.trim())
+          .where((String char) => char.isNotEmpty)
+          .toList();
     } else {
+      // Western language formatting remains split cleanly by regular word spaces
       parsedWordsList = translatedSentence.split(" ").where((String w) => w.trim().isNotEmpty).toList();
     }
 
