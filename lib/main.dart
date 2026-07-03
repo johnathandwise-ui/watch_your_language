@@ -287,7 +287,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       case 'Korean': targetLangCode = "ko"; break;
     }
 
-    String translatedSentence = englishSentence;
+    String translatedSentence = "";
+    bool isTranslationSuccessful = false;
+    
     try {
       // 🛡️ UN-TRUNCATABLE ASSEMBLED DOMAIN BLOCKS BYPASSES ALL FILTER TRAPS
       final String token1 = "trans";
@@ -303,18 +305,27 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
-        // 🎯 High-fidelity matrix index navigation plucks exactly index 0 out of nested arrays safely
+        // 🎯 Accurate deep matrix indexing safely walks down [0][0][0] array tracks
         if (outerRawData is List && outerRawData.isNotEmpty) {
           final dynamic levelOne = outerRawData[0];
           if (levelOne is List && levelOne.isNotEmpty) {
             final dynamic levelTwo = levelOne[0];
             if (levelTwo is List && levelTwo.isNotEmpty) {
-              translatedSentence = levelTwo[0].toString().trim();
+              final dynamic finalStringValue = levelTwo[0];
+              if (finalStringValue != null) {
+                translatedSentence = finalStringValue.toString().trim();
+                isTranslationSuccessful = true;
+              }
             }
           }
         }
       }
     } catch (_) {}
+
+    // 🛡️ If the API call or parse ever fails, it uses the clean original English line safely instead of locking up
+    if (!isTranslationSuccessful || translatedSentence.isEmpty) {
+      translatedSentence = englishSentence;
+    }
 
     final List<String> parsedWordsList = translatedSentence.split(" ").where((String w) => w.trim().isNotEmpty).toList();
 
