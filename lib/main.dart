@@ -357,7 +357,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 11 OF 22
-// 1.2S BANNER WINDOW TIMERS & AUTO PROMPTS
+// 1.2S BANNER TIMERS & DEBOUCED FIRST WORD AUDIO
 // ==========================================
   void _startCueCardCacheImpressionTimer() {
     if (!mounted) return;
@@ -369,11 +369,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             ? _currentFlashcardWord[currentWordIndex] 
             : "";
         if (activeCueWord.isNotEmpty && activeCueWord != "LOADING...") {
-          Future.microtask(() => _executeVoicePronunciationEngine(activeCueWord));
+          // 🎯 Added a brief 150ms structural buffer window to guarantee text is completely loaded before voice fire
+          Future.delayed(const Duration(milliseconds: 150), () {
+            if (mounted && !isLoading && isRehearsalPhase) {
+              _executeVoicePronunciationEngine(activeCueWord);
+            }
+          });
         }
       }
     });
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 12 OF 22
 // CUE DECK WORD OVERSEE PROGRESS ROUTER
