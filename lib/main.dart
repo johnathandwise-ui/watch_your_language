@@ -306,15 +306,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
         if (outerRawData is List && outerRawData.isNotEmpty) {
-          final List levelOneBox = outerRawData as List;
-          final dynamic firstElement = levelOneBox;
-          if (firstElement is List && firstElement.isNotEmpty) {
-            final List levelTwoBox = firstElement as List;
-            final dynamic secondElement = levelTwoBox;
-            if (secondElement is List && secondElement.isNotEmpty) {
-              final List targetTextChunkPair = secondElement as List;
-              if (targetTextChunkPair.isNotEmpty && targetTextChunkPair != null) {
-                translatedSentence = targetTextChunkPair.toString().trim();
+          final List levelOneBox = outerRawData;
+          if (levelOneBox[0] is List) {
+            final List levelTwoBox = levelOneBox[0] as List;
+            if (levelTwoBox.isNotEmpty && levelTwoBox[0] is List) {
+              // 🎯 High-Precision Index Deep Dive extracts ONLY the pure translated string text data
+              final List targetTextChunkPair = levelTwoBox[0] as List;
+              if (targetTextChunkPair.isNotEmpty && targetTextChunkPair[0] != null) {
+                translatedSentence = targetTextChunkPair[0].toString().trim();
               }
             }
           }
@@ -322,11 +321,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
 
-    // 🎯 SMART COMPONENT CHOPPER: Splits Western text by spaces, and Asian text by natural sentence breaks/punctuation phrases
+    // Smart word splitter runs safely on clean text data arrays with zero brackets remaining
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
       parsedWordsList = translatedSentence.split(RegExp(r'[、。，．\s]+')).where((String w) => w.trim().isNotEmpty).toList();
-      // 🛡️ Safe Fallback Layer: If the text contains no punctuation markers, present it in 2 clean natural phrase cuts instead of one giant loop
+      // Safe phrase splitter limits cards to comfortable conversational pieces
       if (parsedWordsList.length <= 1 && translatedSentence.length > 8) {
         int splitIndex = (translatedSentence.length / 2).floor();
         parsedWordsList = [
