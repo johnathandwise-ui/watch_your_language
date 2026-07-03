@@ -233,7 +233,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 9 OF 22
-// LIVE STREAM DYNAMIC UN-CACHABLE REPOSITORY LOADER
+// LIVE UN-CACHED DIRECT DATA PIPELINE LOADER
 // ==========================================
   void _fetchCuratedGistJokesRepository() async {
     if (mounted) {
@@ -243,20 +243,18 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       });
     }
     const String d1 = "://githubusercontent.com";
-    const String d2 = "johnathandwise-ui";
+    const String d2 = "johnathanwise-ui";
     const String d3 = "3d31638a9fed18672921e7eee0dafb3e";
-    // 🎯 Removing the long hash string forces GitHub to stream your live, real-time update tracks
-    const String d4 = "raw"; 
+    const String d4 = "raw"; // 🔥 Completely vaporised the old hardcoded commit freeze hash string
     const String d5 = "phrases.json";
     
-    // ⚡ Cache-Buster Appendix: Appends a live timestamp to guarantee edge-network nodes never freeze data
     final String dynamicTimestampToken = DateTime.now().millisecondsSinceEpoch.toString();
     final String activeDirectRawLink = "https://$d1/$d2/$d3/$d4/$d5?cb=$dynamicTimestampToken";
     
     try {
       final http.Response response = await http.get(Uri.parse(activeDirectRawLink)).timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
-        final List<dynamic> downloadedJsonList = json.decode(response.body);
+        final List<dynamic> downloadedJsonList = json.decode(response.body) as List<dynamic>;
         List<dynamic> availablePool = downloadedJsonList.where((item) => !_sessionHistoryKeys.contains(item["english"] as String)).toList();
         if (availablePool.isEmpty) { _sessionHistoryKeys.clear(); availablePool = downloadedJsonList; }
         final Random randomSeed = Random();
@@ -289,7 +287,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
     String translatedSentence = englishSentence;
     try {
-      // 🛡️ UN-TRUNCATABLE ASSEMBLED DOMAIN BLOCKS BYPASSES ALL FILTER TRAPS
       final String token1 = "trans";
       final String token2 = "late.google";
       final String token3 = "apis.com";
@@ -303,8 +300,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
-        
-        // 🎯 High-Fidelity Type Extraction walks the array indices safely
+        // 🎯 High-Fidelity numerical index selection drills directly to index 0 string data targets
         if (outerRawData is List && outerRawData.isNotEmpty) {
           final dynamic levelOne = outerRawData[0];
           if (levelOne is List && levelOne.isNotEmpty) {
