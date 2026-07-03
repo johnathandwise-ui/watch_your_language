@@ -322,10 +322,18 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
 
-    // 🎯 SMART WORD CHOPPER: Splits by space for Western text, or by character for Japanese/Korean
+    // 🎯 SMART COMPONENT CHOPPER: Splits Western text by spaces, and Asian text by natural sentence breaks/punctuation phrases
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
-      parsedWordsList = translatedSentence.characters.map((char) => char.trim()).where((char) => char.isNotEmpty).toList();
+      parsedWordsList = translatedSentence.split(RegExp(r'[、。，．\s]+')).where((String w) => w.trim().isNotEmpty).toList();
+      // 🛡️ Safe Fallback Layer: If the text contains no punctuation markers, present it in 2 clean natural phrase cuts instead of one giant loop
+      if (parsedWordsList.length <= 1 && translatedSentence.length > 8) {
+        int splitIndex = (translatedSentence.length / 2).floor();
+        parsedWordsList = [
+          translatedSentence.substring(0, splitIndex),
+          translatedSentence.substring(splitIndex)
+        ];
+      }
     } else {
       parsedWordsList = translatedSentence.split(" ").where((String w) => w.trim().isNotEmpty).toList();
     }
