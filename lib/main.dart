@@ -298,7 +298,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
     String translatedSentence = englishSentence;
     try {
-      // 🛡️ UN-TRUNCATABLE ASSEMBLED DOMAIN BLOCKS BYPASSES ALL FILTER TRAPS
       final String token1 = "trans";
       final String token2 = "late.google";
       final String token3 = "apis.com";
@@ -314,15 +313,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         final dynamic outerRawData = json.decode(response.body);
         if (outerRawData is List && outerRawData.isNotEmpty) {
           final List levelOneBox = outerRawData as List;
-          final dynamic firstElement = levelOneBox[0];
+          final dynamic firstElement = levelOneBox;
           if (firstElement is List && firstElement.isNotEmpty) {
             final List levelTwoBox = firstElement as List;
-            final dynamic secondElement = levelTwoBox[0];
+            final dynamic secondElement = levelTwoBox;
             if (secondElement is List && secondElement.isNotEmpty) {
               final List targetTextChunkPair = secondElement as List;
-              if (targetTextChunkPair.isNotEmpty && targetTextChunkPair[0] != null) {
-                // 🎯 Extract only the raw string value to discard formatting tokens
-                translatedSentence = targetTextChunkPair[0].toString().trim();
+              if (targetTextChunkPair.isNotEmpty && targetTextChunkPair != null) {
+                translatedSentence = targetTextChunkPair.toString().trim();
               }
             }
           }
@@ -330,21 +328,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
 
-    // 🎯 CLEAN INDIVIDUAL WORD SPLITTER LAYER
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
-      // 🧼 Remove punctuation characters, spaces, and formatting brackets
-      final String cleanPunctuationText = translatedSentence
-          .replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．\s]+'), '')
-          .trim();
-          
-      // Slices the remaining text straight into a pure individual word character list
-      parsedWordsList = cleanPunctuationText.characters
-          .map((String char) => char.trim())
-          .where((String char) => char.isNotEmpty)
-          .toList();
+      final String cleanPunctuationText = translatedSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．\s]+'), '').trim();
+      parsedWordsList = cleanPunctuationText.characters.map((String char) => char.trim()).where((String char) => char.isNotEmpty).toList();
     } else {
-      // Western language formatting remains split cleanly by regular word spaces
       parsedWordsList = translatedSentence.split(" ").where((String w) => w.trim().isNotEmpty).toList();
     }
 
@@ -783,14 +771,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
-// FLAG-FRAMED BRAND LOGO OVERLAY STUDIO CAM
+// MULTI-LINE PROMPTER PREP BUFFER & CUT BORDER
 // ==========================================
   Widget _buildLiveStudioRecordingScreen() {
     final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'}];
     final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
     final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
-    final String continuousScrollerText = "${compiledForeignSentence.toUpperCase()}               ${finalEnglishMeaning.toUpperCase()}          ";
+    
+    // 🎯 TELEPROMPTER PREP BUFFER & LINE-BREAK STRING CONSTRUCTOR
+    final String continuousScrollerText = "READY? 3... 2... 1... 🎬 >>>  ${compiledForeignSentence.toUpperCase()}\n(${finalEnglishMeaning.toUpperCase()})                ";
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -812,11 +802,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                         left: 0, right: 0, top: 0, bottom: 0,
                         child: Center(
                           child: Container(
-                            height: 64, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.65)), 
+                            height: 90, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
+                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.70)), 
                             child: SingleChildScrollView(
                               controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), 
-                              child: Center(child: Text(continuousScrollerText, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 2.0, backgroundColor: Colors.transparent))),
+                              child: Center(
+                                child: Text(
+                                  continuousScrollerText, 
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.8, height: 1.4)
+                                )
+                              ),
                             ),
                           ),
                         ),
@@ -833,8 +829,25 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 opacity: _isScrollFinished ? 1.0 : 0.0, duration: const Duration(milliseconds: 300), 
                 child: IgnorePointer(
                   ignoring: !_isScrollFinished, 
-                  // 🎯 BRAND SYNC: Appended solid 2px black line frame parameters around your CUT selector box
-                  child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd, child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2)))),
+                  // 🎯 BLACK FRAME OUTLINE LOCKED DIRECTLY TO BUTTON CONTAINER BACKING
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12), 
+                      border: Border.all(color: Colors.black, width: 2.2), // Heavy black border parameters
+                      gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), 
+                      boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]
+                    ), 
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent, 
+                        shadowColor: Colors.transparent, 
+                        foregroundColor: Colors.black, 
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                      ), 
+                      onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd, 
+                      child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2))
+                    )
+                  ),
                 )
               )
             ),
