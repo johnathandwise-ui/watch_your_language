@@ -644,7 +644,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
     final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     
-    // 🔕 FIXED: Auto-play post-frame lifecycle trigger completely removed to keep this screen dead silent upon landing
+    // 🔊 Balanced Post-Frame Audio Hook: Plays EXACTLY once upon screen entry, then locks down
+    WidgetsBinding.instance.addPostFrameCallback((_) { 
+      if (mounted && isFullSentencePhase && currentWordIndex != -999) { 
+        currentWordIndex = -999; // Temporary internal state flags that the landing audio has resolved
+        Future.delayed(const Duration(milliseconds: 350), () {
+          if (mounted && isFullSentencePhase) {
+            _executeVoicePronunciationEngine(compiledForeignSentence);
+          }
+        });
+      } 
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -739,7 +749,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               ),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                                // 🎯 LOCKED: "YOUR TURN" button is completely disabled if the audio is actively playing out loud
+                                // 🎯 LOCKED: "YOUR TURN" button remains frozen until pronunciation audio completes
                                 onPressed: _isSpeakingActive ? null : () { setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); },
                                 child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
                               ),
