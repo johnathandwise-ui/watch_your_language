@@ -179,6 +179,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool isPlaybackReviewPhase = false;
   bool _isDelayActive = false;
   bool _isScrollFinished = false;
+  bool _isSpeakingActive = false; // 🎯 Speech-lock state flag blocks premature skipping
   
   String finalEnglishMeaning = "";
   String compiledForeignSentence = "";
@@ -201,7 +202,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     super.initState();
     _prompterScrollController = ScrollController();
     
-    // 🔥 Force state clearance to break internal layout caching parameters
     finalEnglishMeaning = "";
     compiledForeignSentence = "";
     _currentFlashcardWord = [];
@@ -395,7 +395,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 13 OF 22
-// OFFLINE TTS MULTI-LANGUAGE AUDIO ENGINES
+// TTS AUDIO ENGINES & COMPLETION LISTENERS
 // ==========================================
   void _executeVoicePronunciationEngine(String textToSpeak) async {
     if (textToSpeak.isEmpty || textToSpeak == "LOADING...") return;
@@ -411,6 +411,22 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       case 'Swedish': ttsLocaleCode = "sv-SE"; break;
       case 'Korean': ttsLocaleCode = "ko-KR"; break;
     }
+    
+    // 🎧 Active audio handler lifecycle listeners track completion states dynamically
+    if (mounted) { setState(() { _isSpeakingActive = true; }); }
+    
+    _flutterTts.setStartHandler(() {
+      if (mounted) { setState(() { _isSpeakingActive = true; }); }
+    });
+    
+    _flutterTts.setCompletionHandler(() {
+      if (mounted) { setState(() { _isSpeakingActive = false; }); }
+    });
+    
+    _flutterTts.setErrorHandler((msg) {
+      if (mounted) { setState(() { _isSpeakingActive = false; }); }
+    });
+
     await _flutterTts.setLanguage(ttsLocaleCode);
     await _flutterTts.setSpeechRate(0.42);
     await _flutterTts.speak(textToSpeak);
@@ -419,6 +435,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   void _triggerAdRefresherIncrement() {
     if (mounted) { setState(() { adRefreshCounterSeed++; }); }
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 14 OF 22
 // LIVE STUDIO RECORDING TIMELINE SEQUENCE
@@ -537,13 +554,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// FLAG-FRAMED CUE CARD BRAND LOGO DECK
+// CUE DECK COMPONENT & AUDIO LOCKOUT DECK
 // ==========================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord, String flagIcon) {
+    // 🎯 Lock mechanism rules combine ad impressions with structural voice timelines
+    final bool isInteractionProhibited = _isDelayActive || _isSpeakingActive;
+
     return Column(
       mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // 🎯 Brand Logo framed beautifully between country flag icons on cue cards
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -588,11 +607,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         Row(children: [
           Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _executeVoicePronunciationEngine(activeCueWord); _triggerAdRefresherIncrement(); }, icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))))),
           const SizedBox(width: 12),
-          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _advanceWordIndexTrackerOrRouteNext(); _triggerAdRefresherIncrement(); }, child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))))),
+          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isInteractionProhibited ? null : () { _advanceWordIndexTrackerOrRouteNext(); _triggerAdRefresherIncrement(); }, child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))))),
         ]),
       ],
     );
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 19 OF 22
 // FULL CHALLENGE SENTENCE VIEW WITH LOGO FLAGS
