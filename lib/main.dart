@@ -303,12 +303,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
+        // 🎯 High-fidelity matrix index navigation plucks exactly index 0 out of nested arrays safely
         if (outerRawData is List && outerRawData.isNotEmpty) {
-          final List<dynamic> mainPayloadList = outerRawData[0] as List<dynamic>;
-          if (mainPayloadList.isNotEmpty && mainPayloadList[0] is List) {
-            final List<dynamic> textPairContainer = mainPayloadList[0] as List<dynamic>;
-            if (textPairContainer.isNotEmpty && textPairContainer[0] != null) {
-              translatedSentence = textPairContainer[0].toString().trim();
+          final dynamic levelOne = outerRawData[0];
+          if (levelOne is List && levelOne.isNotEmpty) {
+            final dynamic levelTwo = levelOne[0];
+            if (levelTwo is List && levelTwo.isNotEmpty) {
+              translatedSentence = levelTwo[0].toString().trim();
             }
           }
         }
