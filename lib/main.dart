@@ -382,10 +382,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 12 OF 22
-// CUE DECK WORD OVERSEE PROGRESS ROUTER
+// SECURED ROTATION ROUTER WITH STEPPING LOCKS
 // ==========================================
   void _advanceWordIndexTrackerOrRouteNext() {
     if (!mounted) return;
+    
+    // 🎯 Instant Proactive Lockout prevents users from spamming the stepping matrix
+    setState(() { _isSpeakingActive = true; });
+    
     if (currentWordIndex < _currentFlashcardWord.length - 1) {
       setState(() { currentWordIndex++; });
       _startCueCardCacheImpressionTimer();
@@ -393,9 +397,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       setState(() { isRehearsalPhase = false; isFullSentencePhase = true; });
     }
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 13 OF 22
-// TTS AUDIO ENGINES & COMPLETION LISTENERS
+// TTS HARDWARE LISTENERS & ENFORCED AD REFRESHERS
 // ==========================================
   void _executeVoicePronunciationEngine(String textToSpeak) async {
     if (textToSpeak.isEmpty || textToSpeak == "LOADING...") return;
@@ -412,7 +417,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       case 'Korean': ttsLocaleCode = "ko-KR"; break;
     }
     
-    // 🎧 Active audio handler lifecycle listeners track completion states dynamically
+    // 🎧 Active core synchronization keeps the interaction channel closed
     if (mounted) { setState(() { _isSpeakingActive = true; }); }
     
     _flutterTts.setStartHandler(() {
@@ -420,7 +425,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
     
     _flutterTts.setCompletionHandler(() {
-      if (mounted) { setState(() { _isSpeakingActive = false; }); }
+      if (mounted) { 
+        setState(() { 
+          _isSpeakingActive = false; 
+        }); 
+        // ⚡ Force ad refresher layout engine incremental updates on word complete
+        _triggerAdRefresherIncrement(); 
+      }
     });
     
     _flutterTts.setErrorHandler((msg) {
