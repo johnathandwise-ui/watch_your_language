@@ -212,9 +212,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 8 OF 22
-// HARDWARE FRONT LENS ALLOCATION BOOT
+// DELAYED HARDWARE COLD BOOT ALLOCATION
 // ==========================================
   void _bootstrapStudioHardware() async {
+    // 🎯 Shifting initialization blocks to separate layers stops lens allocation memory freezes
+    _fetchCuratedGistJokesRepository();
+  }
+
+  void _triggerLazyCameraHardwareActivation() async {
     if (widget.cameras.isEmpty) {
       if (mounted) { setState(() { networkTrafficStatusHUD = "❌ NO CAMERAS FOUND"; }); }
       return;
@@ -226,11 +231,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     _cameraController = CameraController(frontCam, ResolutionPreset.medium, enableAudio: true);
     try {
       await _cameraController!.initialize();
-      _fetchCuratedGistJokesRepository();
+      if (mounted) { setState(() {}); }
     } catch (e) {
       if (mounted) { setState(() { networkTrafficStatusHUD = "❌ CAMERA ERROR: $e"; }); }
     }
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 9 OF 22
 // LIVE UN-CACHED DIRECT DATA PIPELINE LOADER
@@ -644,10 +650,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
     final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     
-    // 🔊 Balanced Post-Frame Audio Hook: Plays EXACTLY once upon screen entry, then locks down
     WidgetsBinding.instance.addPostFrameCallback((_) { 
       if (mounted && isFullSentencePhase && currentWordIndex != -999) { 
-        currentWordIndex = -999; // Temporary internal state flags that the landing audio has resolved
+        currentWordIndex = -999; 
         Future.delayed(const Duration(milliseconds: 350), () {
           if (mounted && isFullSentencePhase) {
             _executeVoicePronunciationEngine(compiledForeignSentence);
@@ -749,8 +754,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               ),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                                // 🎯 LOCKED: "YOUR TURN" button remains frozen until pronunciation audio completes
-                                onPressed: _isSpeakingActive ? null : () { setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); _startRecordingCountdownSequence(); },
+                                // 🎯 CAMERA ON DEMAND: Activating the camera hardware exactly on selection breaks memory freeze locks completely
+                                onPressed: _isSpeakingActive ? null : () { 
+                                  _triggerLazyCameraHardwareActivation();
+                                  setState(() { isFullSentencePhase = false; isRecordingPhase = true; }); 
+                                  _startRecordingCountdownSequence(); 
+                                },
                                 child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
                               ),
                             ),
@@ -818,7 +827,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            SizedBox(height: 54, width: double.infinity, child: AnimatedOpacity(opacity: _isScrollFinished ? 1.0 : 0.0, duration: const Duration(milliseconds: 300), child: IgnorePointer(ignoring: !_isScrollFinished, child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd, child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2))))))),
+            SizedBox(
+              height: 54, width: double.infinity, 
+              child: AnimatedOpacity(
+                opacity: _isScrollFinished ? 1.0 : 0.0, duration: const Duration(milliseconds: 300), 
+                child: IgnorePointer(
+                  ignoring: !_isScrollFinished, 
+                  // 🎯 BRAND SYNC: Appended solid 2px black line frame parameters around your CUT selector box
+                  child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd, child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2)))),
+                )
+              )
+            ),
             const SizedBox(height: 8),
           ]),
         ),
@@ -850,6 +869,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ],
     );
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 21 OF 22
 // PREMIUM PLAYBACK REVIEW SUITE & MEDIA LANES
