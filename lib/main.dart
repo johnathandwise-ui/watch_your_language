@@ -166,7 +166,7 @@ class GameLoopScreen extends StatefulWidget {
 }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 7 OF 22
-// PHASE TIMELINE VARIABLES & STATE PROPERTIES
+// STAGGERED DUAL TIMELINE STATE CONTROLLERS
 // ==========================================
 class _GameLoopScreenState extends State<GameLoopScreen> {
   CameraController? _cameraController;
@@ -179,7 +179,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool isPlaybackReviewPhase = false;
   bool _isDelayActive = false;
   bool _isScrollFinished = false;
-  bool _isSpeakingActive = false; // 🎯 Speech-lock state flag blocks premature skipping
+  bool _isSpeakingActive = false;
+  bool _isTranslationScrollActive = false; // 🎯 Dictates exactly when the bottom translation scroller un-hides
   
   String finalEnglishMeaning = "";
   String compiledForeignSentence = "";
@@ -196,11 +197,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   
   Timer? _countdownTimer;
   ScrollController? _prompterScrollController;
+  ScrollController? _translationScrollController; // 🎯 Independent secondary translation engine
 
   @override
   void initState() {
     super.initState();
     _prompterScrollController = ScrollController();
+    _translationScrollController = ScrollController(); // Allocate hardware memory track
     
     finalEnglishMeaning = "";
     compiledForeignSentence = "";
@@ -460,7 +463,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 22
-// INTERSTITIAL VIDEO AD TRANSITION SWITCHES
+// STAGGERED DUAL-TIMELINE TIMING LIFECYCLES
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -474,9 +477,28 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   void _initializeDualScrollingTeleprompter() {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
-        final double maxScroll = _prompterScrollController!.position.maxScrollExtent;
-        _prompterScrollController!.animateTo(maxScroll, duration: const Duration(seconds: 10), curve: Curves.linear).then((_) {
-          if (mounted) { setState(() { _isScrollFinished = true; }); }
+        final double maxScrollForeign = _prompterScrollController!.position.maxScrollExtent;
+        
+        // 🎯 TIMELINE 1: Foreign Sentence scrolls at a steady reading pace for 15 seconds
+        _prompterScrollController!.animateTo(maxScrollForeign, duration: const Duration(seconds: 15), curve: Curves.linear).then((_) {
+          if (!mounted) return;
+          
+          // Trigger the bottom translation layer to reveal and begin its sequence
+          setState(() { _isTranslationScrollActive = true; });
+          
+          Future.delayed(const Duration(milliseconds: 200), () {
+            if (_translationScrollController != null && _translationScrollController!.hasClients) {
+              final double maxScrollEnglish = _translationScrollController!.position.maxScrollExtent;
+              
+              // 🎯 TIMELINE 2: Translation scrolls underneath for another steady 15 seconds
+              _translationScrollController!.animateTo(maxScrollEnglish, duration: const Duration(seconds: 15), curve: Curves.linear).then((_) {
+                if (mounted) { setState(() { _isScrollFinished = true; }); }
+              });
+            } else {
+              // Safety fallback if string is short enough that it doesn't need to scroll
+              if (mounted) { setState(() { _isScrollFinished = true; }); }
+            }
+          });
         });
       }
     });
@@ -487,19 +509,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     try {
       await _cameraController!.stopVideoRecording();
       if (mounted) {
-        setState(() {
-          isLoading = true; // Flips on loading matrix to show the interstitial ad step
-          isRecordingPhase = false;
-        });
+        setState(() { isLoading = true; isRecordingPhase = false; });
       }
-      // 🎬 Simulates a 2.0-second full-screen mobile interstitial video ad breakout window
       Timer(const Duration(milliseconds: 2000), () {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-            isPlaybackReviewPhase = true; // Safe handoff lands user directly onto review suite
-          });
-        }
+        if (mounted) { setState(() { isLoading = false; isPlaybackReviewPhase = true; }); }
       });
     } catch (_) {}
   }
@@ -770,7 +783,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
-// CLEAN MULTI-LINE PROMPTER PREP BUFFER & CUT BORDER
+// SEQUENTIAL STAGGERED PROMPTER STUDIO CANVAS
 // ==========================================
   Widget _buildLiveStudioRecordingScreen() {
     final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'}];
@@ -778,9 +791,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
     final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     
-    // 🧼 Regex sanitation permanently strips leftover brackets out of the recording stream view string
     final String cleanForeignText = compiledForeignSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
-    final String continuousScrollerText = "READY? 3... 2... 1... 🎬 >>>  $cleanForeignText\n(${finalEnglishMeaning.toUpperCase()})                ";
+    final String cleanEnglishText = finalEnglishMeaning.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').toUpperCase().trim();
+    
+    // Generous trailing spaces guarantee text completely clears the view at a steady tempo
+    final String primaryScrollerText = "READY? 3... 2... 1... 🎬 >>>  $cleanForeignText                                      ";
+    final String secondaryScrollerText = "TRANSLATION: $cleanEnglishText                                      ";
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -797,26 +813,41 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                   borderRadius: BorderRadius.circular(14), 
                   child: Stack(children: [
                     Positioned.fill(child: (_cameraController == null || !_cameraController!.value.isInitialized) ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber))) : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!))),
+                    
                     if (!isCountdownRunning)
                       Positioned(
                         left: 0, right: 0, top: 0, bottom: 0,
                         child: Center(
-                          child: Container(
-                            height: 90, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.70)), 
-                            child: SingleChildScrollView(
-                              controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), 
-                              child: Center(
-                                child: Text(
-                                  continuousScrollerText, 
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.8, height: 1.4)
-                                )
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 🏛️ DUAL BOX 1: Top Solid Banner Block (Scrolling Foreign Sentence First)
+                              Container(
+                                height: 50, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
+                                decoration: BoxDecoration(color: Colors.black.withOpacity(0.85), border: Border(bottom: BorderSide(color: Colors.grey.shade900, width: 1))), 
+                                child: SingleChildScrollView(
+                                  controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), 
+                                  child: Center(child: Text(primaryScrollerText, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.8))),
+                                ),
                               ),
-                            ),
+                              // 🏛️ DUAL BOX 2: Bottom Solid Banner Block (Un-hides and scrolls ONLY after top box finishes)
+                              AnimatedOpacity(
+                                opacity: _isTranslationScrollActive ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 400),
+                                child: Container(
+                                  height: 44, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
+                                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.85)), 
+                                  child: SingleChildScrollView(
+                                    controller: _translationScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(),
+                                    child: Center(child: Text(secondaryScrollerText, style: TextStyle(color: Colors.amber.shade400, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.4))),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                      
                     if (isCountdownRunning) Positioned.fill(child: Container(color: Colors.black.withOpacity(0.5), child: Center(child: Text("$productionCountdown", style: const TextStyle(color: Colors.amber, fontSize: 80, fontWeight: FontWeight.bold))))),
                   ]),
                 ),
@@ -837,12 +868,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]
                     ), 
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent, 
-                        shadowColor: Colors.transparent, 
-                        foregroundColor: Colors.black, 
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-                      ), 
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), 
                       onPressed: isCutButtonLocked ? null : _stopRecordingAndLaunchInterstitialVideoAd, 
                       child: const Text("CUT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.black, letterSpacing: 1.2))
                     )
