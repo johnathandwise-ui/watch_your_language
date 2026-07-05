@@ -463,7 +463,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 22
-// ENFORCED SEQUENTIAL SCROLL TIMELINE LOOPS
+// CONTINUOUS LINE TELEPROMPTER TIMELINES
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -477,28 +477,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   void _initializeDualScrollingTeleprompter() {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
-        final double maxScrollForeign = _prompterScrollController!.position.maxScrollExtent;
+        final double maxScrollExtent = _prompterScrollController!.position.maxScrollExtent;
         
-        // 🎯 TIMELINE 1: Top Foreign box scrolls smoothly at a steady pace for 15 seconds
-        _prompterScrollController!.animateTo(maxScrollForeign, duration: const Duration(seconds: 15), curve: Curves.linear).then((_) {
-          if (!mounted) return;
-          
-          // 🔥 Hard Stop Sync: Explicitly activate translation visibility ONLY after foreign sentence finishes
-          setState(() { _isTranslationScrollActive = true; });
-          
-          // Delay the secondary timeline kickoff by 400ms to allow a crisp breathing pause for the actor
-          Future.delayed(const Duration(milliseconds: 400), () {
-            if (_translationScrollController != null && _translationScrollController!.hasClients) {
-              final double maxScrollEnglish = _translationScrollController!.position.maxScrollExtent;
-              
-              // 🎯 TIMELINE 2: Bottom English box scrolls underneath for another steady 15 seconds
-              _translationScrollController!.animateTo(maxScrollEnglish, duration: const Duration(seconds: 15), curve: Curves.linear).then((_) {
-                if (mounted) { setState(() { _isScrollFinished = true; }); }
-              });
-            } else {
-              if (mounted) { setState(() { _isScrollFinished = true; }); }
-            }
-          });
+        // 🎯 Steady Pacing Velocity: Locked into a perfectly balanced 12 seconds loop timeline
+        _prompterScrollController!.animateTo(maxScrollExtent, duration: const Duration(seconds: 12), curve: Curves.linear).then((_) {
+          if (mounted) { setState(() { _isScrollFinished = true; }); }
         });
       }
     });
@@ -508,7 +491,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     if (_cameraController == null || !_cameraController!.value.isRecordingVideo) return;
     try {
       await _cameraController!.stopVideoRecording();
+      
+      // 🎯 HARD CAM STOP SWITCH: Instantly purges and disposes camera lens streams to clear device memory caches
+      _cameraController?.dispose();
+      _cameraController = null;
+      
       if (mounted) { setState(() { isLoading = true; isRecordingPhase = false; }); }
+      
       Timer(const Duration(milliseconds: 2000), () {
         if (mounted) { setState(() { isLoading = false; isPlaybackReviewPhase = true; }); }
       });
@@ -781,7 +770,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 20 OF 22
-// STACKED SEQUENTIAL DISPLAYS WITH SPACING GAP
+// CONTINUOUS RICH-TEXT SINGLE PROMPTER CANVAS
 // ==========================================
   Widget _buildLiveStudioRecordingScreen() {
     final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'}];
@@ -791,9 +780,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     
     final String cleanForeignText = compiledForeignSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
     final String cleanEnglishText = finalEnglishMeaning.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').toUpperCase().trim();
-    
-    final String primaryScrollerText = "READY? 3... 2... 1... 🎬 >>>  $cleanForeignText                                      ";
-    final String secondaryScrollerText = "TRANSLATION: $cleanEnglishText                                      ";
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -815,37 +801,39 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       Positioned(
                         left: 0, right: 0, top: 0, bottom: 0,
                         child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // 🏛️ BOX 1: Top Solid Banner Block (Scrolling Foreign Sentence)
-                              Container(
-                                height: 50, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
-                                decoration: BoxDecoration(color: Colors.black.withOpacity(0.85)), 
-                                child: SingleChildScrollView(
-                                  controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), 
-                                  child: Center(child: Text(primaryScrollerText, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.8))),
-                                ),
-                              ),
-                              
-                              // 🎯 THE GAP: Injected explicit layout spacing margin separating your glass panels
-                              const SizedBox(height: 12),
-                              
-                              // 🏛️ BOX 2: Bottom Translation Banner (Completely un-hides only when prompted by Timeline 1)
-                              AnimatedOpacity(
-                                opacity: _isTranslationScrollActive ? 1.0 : 0.0,
-                                duration: const Duration(milliseconds: 400),
-                                child: Container(
-                                  height: 44, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
-                                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.85)), 
-                                  child: SingleChildScrollView(
-                                    controller: _isTranslationScrollActive ? _translationScrollController : null, 
-                                    scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(),
-                                    child: Center(child: Text(secondaryScrollerText, style: TextStyle(color: Colors.amber.shade400, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.4))),
+                          child: Container(
+                            height: 64, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 12), 
+                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.85)), 
+                            child: SingleChildScrollView(
+                              controller: _prompterScrollController, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(), 
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  // 🏢 LEAD SPACER GAP (Gives players room to focus)
+                                  const SizedBox(width: 240),
+                                  // 🏢 SELECTED COUNTRY ROOM ROOM FLAG
+                                  Text(activeFlagIcon, style: const TextStyle(fontSize: 26)),
+                                  // 🏢 SECOND GAP SEPARATOR
+                                  const SizedBox(width: 48),
+                                  // 🏢 MULTI-COLOR CONTINUOUS TEXT BLOCK LAYOUT WRAPPER
+                                  RichText(
+                                    text: TextSpan(
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.8),
+                                      children: [
+                                        // 🎯 Foreign Challenge Sentence in Pure White
+                                        TextSpan(text: "$cleanForeignText    ", style: const TextStyle(color: Colors.white)),
+                                        // 🎯 Middle Splitter Transition Marker
+                                        TextSpan(text: " ➔  ", style: TextStyle(color: Colors.amber.shade400)),
+                                        // 🎯 Core English Translation Meaning in Rich Yellow
+                                        TextSpan(text: "($cleanEnglishText)", style: TextStyle(color: Colors.amber.shade400)),
+                                      ],
+                                    ),
                                   ),
-                                ),
+                                  // 🏢 FINAL SPACER TRAILING GAP (Guarantees text fully rolls completely off the screen)
+                                  const SizedBox(width: 440),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
