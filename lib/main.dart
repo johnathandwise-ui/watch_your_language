@@ -166,7 +166,7 @@ class GameLoopScreen extends StatefulWidget {
 }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 7 OF 22
-// STAGGERED DUAL TIMELINE STATE CONTROLLERS
+// PHASE TIMELINE VARIABLES & STATE PROPERTIES
 // ==========================================
 class _GameLoopScreenState extends State<GameLoopScreen> {
   CameraController? _cameraController;
@@ -180,7 +180,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   bool _isDelayActive = false;
   bool _isScrollFinished = false;
   bool _isSpeakingActive = false;
-  bool _isTranslationScrollActive = false; // 🎯 Dictates exactly when the bottom translation scroller un-hides
+  bool _hasListenedToCurrentWord = false; // 🎯 Progressive reveal flag buys time for AdMob banners
   
   String finalEnglishMeaning = "";
   String compiledForeignSentence = "";
@@ -197,13 +197,11 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   
   Timer? _countdownTimer;
   ScrollController? _prompterScrollController;
-  ScrollController? _translationScrollController; // 🎯 Independent secondary translation engine
 
   @override
   void initState() {
     super.initState();
     _prompterScrollController = ScrollController();
-    _translationScrollController = ScrollController(); // Allocate hardware memory track
     
     finalEnglishMeaning = "";
     compiledForeignSentence = "";
@@ -378,13 +376,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 12 OF 22
-// SECURED ROTATION ROUTER WITH STEPPING LOCKS
+// ROUTER STEPS WITH RE-SETTABLE LISTEN TRACKERS
 // ==========================================
   void _advanceWordIndexTrackerOrRouteNext() {
     if (!mounted) return;
     
-    // 🎯 Instant Proactive Lockout prevents users from spamming the stepping matrix
-    setState(() { _isSpeakingActive = true; });
+    setState(() { 
+      _isSpeakingActive = true;
+      _hasListenedToCurrentWord = false; // 🎯 Reset flag guarantees the next card starts with "LISTEN"
+    });
     
     if (currentWordIndex < _currentFlashcardWord.length - 1) {
       setState(() { currentWordIndex++; });
@@ -558,10 +558,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// CUE DECK COMPONENT & AUDIO LOCKOUT DECK
+// PROGRESSIVE AUDIO REVEAL & BLACK BORDERS
 // ==========================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord, String flagIcon) {
-    // 🎯 Lock mechanism rules combine ad impressions with structural voice timelines
     final bool isInteractionProhibited = _isDelayActive || _isSpeakingActive;
 
     return Column(
@@ -592,27 +591,46 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         const Text("SAY THIS WORD:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         const SizedBox(height: 16),
         Container(
-          width: double.infinity, padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
-          child: Container(
-            width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 140),
-            decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)),
-            child: _isDelayActive 
-                ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
-                : Stack(alignment: Alignment.center, children: [
-                    Text(activeCueWord.toUpperCase(), textAlign: TextAlign.center, style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900, fontFamily: 'Arial', letterSpacing: 0.5, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 4), blurRadius: 10, color: Colors.red.shade900.withOpacity(0.85))])),
-                    Text(activeCueWord.toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900, fontFamily: 'Arial', letterSpacing: 0.5, color: Colors.white)),
-                  ]),
-          ),
+          width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 140),
+          decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade900, width: 2), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.35), blurRadius: 16, spreadRadius: 1, offset: const Offset(0, 4))]),
+          child: _isDelayActive 
+              ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
+              : Stack(alignment: Alignment.center, children: [
+                  Text(activeCueWord.toUpperCase(), textAlign: TextAlign.center, style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900, fontFamily: 'Arial', letterSpacing: 0.5, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 4), blurRadius: 10, color: Colors.red.shade900.withOpacity(0.85))])),
+                  Text(activeCueWord.toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900, fontFamily: 'Arial', letterSpacing: 0.5, color: Colors.white)),
+                ]),
         ),
         const SizedBox(height: 14),
         Text("WORD ${currentWordIndex + 1} OF ${_currentFlashcardWord.length}", style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 48),
-        Row(children: [
-          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _executeVoicePronunciationEngine(activeCueWord); _triggerAdRefresherIncrement(); }, icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))))),
-          const SizedBox(width: 12),
-          Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isInteractionProhibited ? null : () { _advanceWordIndexTrackerOrRouteNext(); _triggerAdRefresherIncrement(); }, child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))))),
-        ]),
+        
+        // 🎯 DYNAMIC PROGRESSIVE REVEAL BUTTON DECK ENGINE
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: !_hasListenedToCurrentWord
+              ? Container(
+                  key: const ValueKey('listen_primary_only'),
+                  height: 54, width: double.infinity,
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                    onPressed: _isDelayActive ? null : () { 
+                      _executeVoicePronunciationEngine(activeCueWord); 
+                      setState(() { _hasListenedToCurrentWord = true; }); 
+                    },
+                    icon: const Icon(Icons.play_arrow, size: 20, color: Colors.black),
+                    label: const Text("LISTEN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.2)),
+                  ),
+                )
+              : Row(
+                  key: const ValueKey('split_control_deck'),
+                  children: [
+                    Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isDelayActive ? null : () { _executeVoicePronunciationEngine(activeCueWord); }, icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))))),
+                    const SizedBox(width: 12),
+                    Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: isInteractionProhibited ? null : () { _advanceWordIndexTrackerOrRouteNext(); }, child: const Text("NEXT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))))),
+                  ],
+                ),
+        ),
       ],
     );
   }
