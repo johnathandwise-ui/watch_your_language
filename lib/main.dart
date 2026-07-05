@@ -351,25 +351,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 11 OF 22
-// 1.2S BANNER TIMERS & DEBOUCED FIRST WORD AUDIO
+// SILENT CUE CARD ENTRANCE & AD IMPRESSION BUFFERS
 // ==========================================
   void _startCueCardCacheImpressionTimer() {
     if (!mounted) return;
-    setState(() { _isDelayActive = true; });
+    
+    // 🎯 Enforce total silence upon landing on a card. Audio only fires when user taps "LISTEN".
+    setState(() { 
+      _isDelayActive = true; 
+    });
+    
     Timer(const Duration(milliseconds: 1200), () {
       if (mounted) { 
         setState(() { _isDelayActive = false; }); 
-        final String activeCueWord = _currentFlashcardWord.isNotEmpty 
-            ? _currentFlashcardWord[currentWordIndex] 
-            : "";
-        if (activeCueWord.isNotEmpty && activeCueWord != "LOADING...") {
-          // 🎯 Added a brief 150ms structural buffer window to guarantee text is completely loaded before voice fire
-          Future.delayed(const Duration(milliseconds: 150), () {
-            if (mounted && !isLoading && isRehearsalPhase) {
-              _executeVoicePronunciationEngine(activeCueWord);
-            }
-          });
-        }
       }
     });
   }
