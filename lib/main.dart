@@ -294,7 +294,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 10 OF 25
-// UN-CRASHABLE DEEP INDEX TRANSLATION PARSER
+// PINPOINT MATRIX TRANSLATION DECODER
 // ==========================================
   void _translateAndParseEnglishPayload(String englishSentence) async {
     _sessionHistoryKeys.add(englishSentence);
@@ -328,18 +328,27 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
+        
+        // 🎯 PINPOINT MATRIX DECODER: Targets the exact primary translation slot directly to ignore alternative metadata
         if (outerRawData is List && outerRawData.isNotEmpty) {
-          final List sentenceSegmentsList = outerRawData;
-          StringBuffer sentenceBuffer = StringBuffer();
-          
-          for (var segment in sentenceSegmentsList) {
-            if (segment is List && segment.isNotEmpty) {
-              sentenceBuffer.write(segment.toString() + " ");
+          final dynamic firstSegmentGroup = outerRawData[0];
+          if (firstSegmentGroup is List && firstSegmentGroup.isNotEmpty) {
+            StringBuffer sentenceBuffer = StringBuffer();
+            
+            // Loop through internal text segments to support long multi-sentence structures safely
+            for (var subSegment in firstSegmentGroup) {
+              if (subSegment is List && subSegment.isNotEmpty) {
+                final dynamic translatedChunk = subSegment[0];
+                if (translatedChunk != null) {
+                  sentenceBuffer.write(translatedChunk.toString());
+                }
+              }
             }
-          }
-          if (sentenceBuffer.isNotEmpty) {
-            translatedSentence = sentenceBuffer.toString().trim();
-            parseSucceeded = true;
+            
+            if (sentenceBuffer.isNotEmpty) {
+              translatedSentence = sentenceBuffer.toString().trim();
+              parseSucceeded = true;
+            }
           }
         }
       }
@@ -370,6 +379,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       _startCueCardCacheImpressionTimer();
     }
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 11 OF 25
 // SILENT CARD ENTRANCE & AD IMPRESSION BUFFERS
