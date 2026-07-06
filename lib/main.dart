@@ -294,7 +294,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 10 OF 25
-// PINPOINT MATRIX TRANSLATION DECODER
+// RESTORED AUTOMATIC ASIAN CHARACTER SLOT FILTER
 // ==========================================
   void _translateAndParseEnglishPayload(String englishSentence) async {
     _sessionHistoryKeys.add(englishSentence);
@@ -329,26 +329,20 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
         
-        // 🎯 PINPOINT MATRIX DECODER: Targets the exact primary translation slot directly to ignore alternative metadata
-        if (outerRawData is List && outerRawData.isNotEmpty) {
-          final dynamic firstSegmentGroup = outerRawData[0];
-          if (firstSegmentGroup is List && firstSegmentGroup.isNotEmpty) {
-            StringBuffer sentenceBuffer = StringBuffer();
-            
-            // Loop through internal text segments to support long multi-sentence structures safely
-            for (var subSegment in firstSegmentGroup) {
-              if (subSegment is List && subSegment.isNotEmpty) {
-                final dynamic translatedChunk = subSegment[0];
-                if (translatedChunk != null) {
-                  sentenceBuffer.write(translatedChunk.toString());
-                }
-              }
+        // 🎯 THE HISTORIC FIX: Explicitly drills to index 0,0,0 to grab pure text and ignore array code
+        if (outerRawData is List && outerRawData.isNotEmpty && outerRawData[0] is List && outerRawData[0].isNotEmpty) {
+          final List firstMatrixRow = outerRawData[0] as List;
+          StringBuffer sentenceBuffer = StringBuffer();
+          
+          for (var segment in firstMatrixRow) {
+            if (segment is List && segment.isNotEmpty && segment[0] != null) {
+              sentenceBuffer.write(segment[0].toString());
             }
-            
-            if (sentenceBuffer.isNotEmpty) {
-              translatedSentence = sentenceBuffer.toString().trim();
-              parseSucceeded = true;
-            }
+          }
+          
+          if (sentenceBuffer.isNotEmpty) {
+            translatedSentence = sentenceBuffer.toString().trim();
+            parseSucceeded = true;
           }
         }
       }
@@ -360,8 +354,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
+      // Clean out lingering punctuation symbols before parsing
       final String cleanAsianText = translatedSentence.replaceAll(RegExp(r'[^\p{L}\p{N}]+', unicode: true), '').trim();
-      parsedWordsList = cleanAsianText.characters.map((String char) => char.trim()).where((String char) => char.isNotEmpty).toList();
+      
+      // Splits characters smoothly while dropping empty formatting artifact strings completely
+      parsedWordsList = cleanAsianText.characters
+          .map((String char) => char.trim())
+          .where((String char) => char.isNotEmpty && char != "[" && char != "]" && char != ",")
+          .toList();
     } else {
       final String cleanWesternText = translatedSentence.replaceAll(RegExp(r'[^\p{L}\p{N}\s]+', unicode: true), '').trim();
       parsedWordsList = cleanWesternText.split(" ").where((String w) => w.trim().isNotEmpty).toList();
