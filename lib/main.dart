@@ -694,7 +694,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 19 OF 22 (PART 1)
-// ENHANCED BRAND LOGO PROFILE & TALL CHALLENGE SENTENCE BOX
+// SILENT SCREEN ENTRY CANVASES & EXPANDED CHALLENGE HOUSING
 // ==========================================
   Widget _buildFullSentencePresentationScreen() {
     final List<Map<String, dynamic>> countryGridMap = [
@@ -712,16 +712,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
     final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
     
-    WidgetsBinding.instance.addPostFrameCallback((_) { 
-      if (mounted && isFullSentencePhase && currentWordIndex != -999) { 
-        currentWordIndex = -999; 
-        Future.delayed(const Duration(milliseconds: 350), () {
-          if (mounted && isFullSentencePhase) {
-            _executeVoicePronunciationEngine(compiledForeignSentence);
-          }
-        });
-      } 
-    });
+    // 🔕 LOCKED SILENCE LIFE CYCLE UPGRADE: Auto-play post-frame callbacks completely eliminated to guarantee zero entry audio leaks
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -774,6 +765,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade900, width: 2), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.35), blurRadius: 16, spreadRadius: 1, offset: const Offset(0, 4))]),
                       child: Text(compiledForeignSentence.toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold, fontFamily: 'Arial', letterSpacing: 0.5)),
                     ),
+
                     const Spacer(flex: 3),
                     
                     // 🎯 PROGRESSIVE PROGRESS INTERACTION PANEL SWITCHER
