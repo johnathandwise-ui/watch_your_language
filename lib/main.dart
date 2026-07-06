@@ -413,7 +413,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 13 OF 22
-// TTS HARDWARE LISTENERS & ENFORCED AD REFRESHERS
+// WEB-SAFE HIGH-STABILITY SPEECH ENGINES
 // ==========================================
   void _executeVoicePronunciationEngine(String textToSpeak) async {
     if (textToSpeak.isEmpty || textToSpeak == "LOADING...") return;
@@ -430,30 +430,31 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       case 'Korean': ttsLocaleCode = "ko-KR"; break;
     }
     
-    // 🎧 Active core synchronization keeps the interaction channel closed
-    if (mounted) { setState(() { _isSpeakingActive = true; }); }
+    // 🔏 WEB-SAFE LOCKOUT: Stripping brittle native completion handlers stops mobile browser freezing dead
+    if (mounted) { 
+      setState(() { _isSpeakingActive = true; }); 
+    }
     
-    _flutterTts.setStartHandler(() {
-      if (mounted) { setState(() { _isSpeakingActive = true; }); }
-    });
+    try {
+      await _flutterTts.setLanguage(ttsLocaleCode);
+      await _flutterTts.setSpeechRate(0.42);
+      await _flutterTts.speak(textToSpeak);
+    } catch (_) {}
+
+    // ⏱️ TIME-DURATION CALCULATOR SIMULATION ENGINE
+    // Calculates a dynamic reading pacing window based on text scale length to unlock interaction buttons automatically
+    int wordLengthCalculationWeight = textToSpeak.length * 110; 
+    int absoluteMinimumBufferWindow = wordLengthCalculationWeight < 750 ? 750 : wordLengthCalculationWeight;
+    if (absoluteMinimumBufferWindow > 4000) absoluteMinimumBufferWindow = 4000; // Hard ceiling stop cap safety gate
     
-    _flutterTts.setCompletionHandler(() {
+    Timer(Duration(milliseconds: absoluteMinimumBufferWindow), () {
       if (mounted) { 
         setState(() { 
           _isSpeakingActive = false; 
         }); 
-        // ⚡ Force ad refresher layout engine incremental updates on word complete
-        _triggerAdRefresherIncrement(); 
+        _triggerAdRefresherIncrement(); // Keeps your Google AdMob placement refreshes rolling securely
       }
     });
-    
-    _flutterTts.setErrorHandler((msg) {
-      if (mounted) { setState(() { _isSpeakingActive = false; }); }
-    });
-
-    await _flutterTts.setLanguage(ttsLocaleCode);
-    await _flutterTts.setSpeechRate(0.42);
-    await _flutterTts.speak(textToSpeak);
   }
 
   void _triggerAdRefresherIncrement() {
