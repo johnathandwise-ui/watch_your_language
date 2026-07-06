@@ -577,58 +577,61 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 // ==========================================
-// 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// MAXIMUM SPREAD CUE CARD CANVAS CONTENT
+// 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22 (PART 1)
+// ENHANCED BRAND LOGO PROFILE & RESTORED ROOM FLAGS
 // ==========================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord, String flagIcon) {
     final bool isInteractionProhibited = _isDelayActive || _isSpeakingActive;
+
+    // 🎯 DYNAMIC ROOM NATIONAL FLAGS CALCULATOR
+    final List<Map<String, dynamic>> localizedCountryGridMap = [
+      {'name': 'Spanish', 'flag': '🇪🇸'}, {'name': 'French', 'flag': '🇫🇷'}, {'name': 'German', 'flag': '🇩🇪'},
+      {'name': 'Italian', 'flag': '🇮🇹'}, {'name': 'Japanese', 'flag': '🇯🇵'}, {'name': 'Portuguese', 'flag': '🇵🇹'},
+      {'name': 'Dutch', 'flag': '🇳🇱'}, {'name': 'Swedish', 'flag': '🇸🇪'}, {'name': 'Korean', 'flag': '🇰🇷'},
+    ];
+    final Map<String, dynamic> activeLanguageData = localizedCountryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => {'flag': '🏳️'});
+    final String fullyRestoredFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
 
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           children: [
-            // 🎯 SPRING SPACER 1: Pins the header logo directly up against the top ad frame
             const Spacer(flex: 1),
-            
             GestureDetector(
               onTap: () { Navigator.pop(context); },
               behavior: HitTestBehavior.opaque,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(flagIcon, style: const TextStyle(fontSize: 24)),
-                  const SizedBox(width: 12),
+                  Text(fullyRestoredFlagIcon, style: const TextStyle(fontSize: 32)),
+                  const SizedBox(width: 16),
                   Column(
                     children: [
                       Stack(alignment: Alignment.center, children: [
-                        Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-                        const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
+                        Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                        const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white)),
                       ]),
                       Stack(alignment: Alignment.center, children: [
-                        Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-                        const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
+                        Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                        const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white)),
                       ]),
                       const SizedBox(height: 6),
-                      // 🎯 AMBER YELLOW TITLE PROFILE POPPING BRILLIANTLY
                       Text(widget.languageName.toUpperCase(), style: TextStyle(color: Colors.amber.shade400, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2.5)),
                     ],
                   ),
-                  const SizedBox(width: 12),
-                  Text(flagIcon, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 16),
+                  Text(fullyRestoredFlagIcon, style: const TextStyle(fontSize: 32)),
                 ],
               ),
             ),
-            
-            // 🚀 SPRING SPACER 2: Expands the gap above the card box container frame
             const Spacer(flex: 2),
             const Text("SAY THIS WORD:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
             const SizedBox(height: 12),
             
-            // 🎯 TALL CARD HOUSING: Expanded internal vertical padding makes the text box taller
             Container(
               width: double.infinity, 
-              padding: const EdgeInsets.symmetric(vertical: 84), // Expanded to fill space beautifully
+              padding: const EdgeInsets.symmetric(vertical: 84), 
               decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade900, width: 2), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.35), blurRadius: 16, spreadRadius: 1, offset: const Offset(0, 4))]),
               child: _isDelayActive 
                   ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
@@ -641,7 +644,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             const SizedBox(height: 12),
             Text("WORD ${currentWordIndex + 1} OF ${_currentFlashcardWord.length}", style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold)),
             
-            // 🚀 SPRING SPACER 3: Heavy vertical distribution slides buttons down to the bottom
             const Spacer(flex: 3),
             
             AnimatedSwitcher(
@@ -653,7 +655,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]),
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                        onPressed: _isDelayActive ? null : () { 
+                        onPressed: _isDelayActive ? null : () async { 
+                          String targetLocale = "es-MX";
+                          switch (widget.languageName) {
+                            case 'Spanish': targetLocale = "es-MX"; break;
+                            case 'French': targetLocale = "fr-FR"; break;
+                            case 'German': targetLocale = "de-DE"; break;
+                            case 'Italian': targetLocale = "it-IT"; break;
+                            case 'Japanese': targetLocale = "ja-JP"; break;
+                            case 'Portuguese': targetLocale = "pt-PT"; break;
+                            case 'Dutch': targetLocale = "nl-NL"; break;
+                            case 'Swedish': targetLocale = "sv-SE"; break;
+                            case 'Korean': targetLocale = "ko-KR"; break;
+                          }
+                          await _flutterTts.setLanguage(targetLocale);
+                          await _flutterTts.setSpeechRate(0.38);
                           _executeVoicePronunciationEngine(activeCueWord); 
                           setState(() { _hasListenedToCurrentWord = true; }); 
                         },
@@ -670,7 +686,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       ],
                     ),
             ),
-            // 🚀 SPRING SPACER 4: Floor cushioning acts as final buffer right above the bottom fold
             const Spacer(flex: 1),
           ],
         ),
