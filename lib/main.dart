@@ -249,6 +249,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   int adRefreshCounterSeed = 0;
   
   String networkTrafficStatusHUD = "📡 MATRICES ONLINE...";
+    // 🎯 PERSISTENT VIDEO CAROUSEL TRACKERS
+  final List<Map<String, dynamic>> _localVideoSessionCarouselArray = [];
+  int _activeCarouselHistoryIndex = 0;
+
   static final List<String> _sessionHistoryKeys = [];
   
   Timer? _countdownTimer;
@@ -565,7 +569,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 25 (PART 2)
-// DART NATIVE 24-HOUR AUTO-DELETE HARDWARE CLEANUP
+// PRECISE TIMESTAMP FILE IDENTIFIER & MATRIX FEEDER
 // ==========================================
   void _stopRecordingAndLaunchInterstitialVideoAd() async {
     if (_cameraController == null || !_cameraController!.value.isRecordingVideo) return;
@@ -579,14 +583,28 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           final List<int> videoFileBytesArray = await recordedVideoFile.readAsBytes();
           final html.Blob videoHardwareBlobContainer = html.Blob([videoFileBytesArray], 'video/mp4');
           
-          _recordedVideoUrl = html.Url.createObjectUrlFromBlob(videoHardwareBlobContainer);
+          // 🎯 STAMPED FILE UNIQUE IDENTIFIER: Forces individual memory buffer spaces for each clip
+          final int distinctUnixEpochStamp = DateTime.now().millisecondsSinceEpoch;
+          final String customBlobPathToken = html.Url.createObjectUrlFromBlob(videoHardwareBlobContainer);
           
-          // 🎯 FIXED TIMER HOOK: Replaced javascript windows timeout loops with a native, type-safe Dart clean timeline
+          _recordedVideoUrl = customBlobPathToken;
+
+          // Push the unique file package track natively directly inside your active history array matrix
+          _localVideoSessionCarouselArray.add({
+            'id': distinctUnixEpochStamp,
+            'url': customBlobPathToken,
+            'foreignText': compiledForeignSentence,
+            'englishText': finalEnglishMeaning,
+            'creationTime': DateTime.now(),
+          });
+          
+          _activeCarouselHistoryIndex = _localVideoSessionCarouselArray.length - 1;
+
+          // Type-safe Dart native timer monitors clean garbage purges for this specific block allocation after 24 hours
           Timer(const Duration(hours: 24), () {
             try {
-              if (_recordedVideoUrl != null) {
-                html.Url.revokeObjectUrl(_recordedVideoUrl!); // Safely flushes the file data from browser RAM allocations
-              }
+              html.Url.revokeObjectUrl(customBlobPathToken);
+              _localVideoSessionCarouselArray.removeWhere((element) => element['url'] == customBlobPathToken);
             } catch (_) {}
           });
           
@@ -1146,19 +1164,29 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 // ==========================================
-// 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25
-// UNBREAKABLE TYPE-SAFE 24HR LOCAL CAROUSEL FRAME
+// 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25 (PART 1)
+// CAROUSEL DATA SLIDER TARGET & EXPIRATION CLOCK
 // ==========================================
   Widget _buildPostProductionReviewScreen() {
-    final String cleanForeignText = compiledForeignSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
-    final String cleanEnglishText = finalEnglishMeaning.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').toUpperCase().trim();
-    final String uniqueElementViewRegistryId = "native-html5-video-player-${DateTime.now().millisecondsSinceEpoch}";
+    final Map<String, dynamic> activeVideoObject = _localVideoSessionCarouselArray.isNotEmpty
+        ? _localVideoSessionCarouselArray[_activeCarouselHistoryIndex]
+        : {'url': _recordedVideoUrl ?? "", 'foreignText': compiledForeignSentence, 'englishText': finalEnglishMeaning, 'creationTime': DateTime.now()};
+
+    final String renderStreamUrl = activeVideoObject['url'] as String;
+    final String rawForeignText = activeVideoObject['foreignText'] as String;
+    final String rawEnglishText = activeVideoObject['englishText'] as String;
+    final DateTime itemCreationTime = activeVideoObject['creationTime'] as DateTime;
+
+    final String cleanForeignText = rawForeignText.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
+    final String cleanEnglishText = rawEnglishText.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').toUpperCase().trim();
     
-    final String productionPlaybackStreamUrl = _recordedVideoUrl ?? "";
+    final int minutesElapsed = DateTime.now().difference(itemCreationTime).inMinutes;
+    final int minutesRemaining = max(0, (24 * 60) - minutesElapsed);
+
+    final String uniqueElementViewRegistryId = "native-html5-video-player-${activeVideoObject['id'] ?? 'primary'}";
     
     final html.VideoElement hardwareVideoCanvasElement = html.VideoElement()
-      ..src = productionPlaybackStreamUrl
-      ..autoplay = true ..loop = true ..muted = false ..volume = 1.0
+      ..src = renderStreamUrl ..autoplay = true ..loop = true ..muted = false ..volume = 1.0
       ..style.border = "none" ..style.width = "100%" ..style.height = "100%" ..style.objectFit = "cover";
       
     hardwareVideoCanvasElement.setAttribute('playsinline', 'true');
@@ -1179,14 +1207,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // 🎯 FIXED WEIGHT TYPE: Changed header to standard valid w900 tokens
                       const Text("😂 YOU NAILED IT! 😂", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
                       const SizedBox(height: 16),
-                      
+// ==========================================
+// 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25 (PART 2)
+// HORIZONTAL SELECTOR ROW & EXPIRATION CLOCK DISPLAY
+// ==========================================
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          IconButton(icon: const Icon(Icons.arrow_back_ios, color: Color(0xFFD4AF37), size: 20), onPressed: () {}),
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back_ios, color: Color(0xFFD4AF37), size: 24),
+                            onPressed: _activeCarouselHistoryIndex <= 0 ? null : () {
+                              setState(() { _activeCarouselHistoryIndex--; });
+                            },
+                          ),
                           Container(
                             width: 230, height: 390,
                             decoration: BoxDecoration(
@@ -1198,33 +1233,20 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               borderRadius: BorderRadius.circular(18),
                               child: Stack(
                                 children: [
-                                  Positioned.fill(child: HtmlElementView(viewType: uniqueElementViewRegistryId)),
+                                  Positioned.fill(key: ValueKey(uniqueElementViewRegistryId), child: HtmlElementView(viewType: uniqueElementViewRegistryId)),
                                   
                                   Positioned(
                                     top: 12, right: 12,
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(color: Colors.black.withOpacity(0.75), borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.red.shade800, width: 1)),
-                                      // 🎯 FIXED WEIGHT TYPE: Changed countdown tag text parameters cleanly to w900
-                                      child: const Text("⏳ EXPIRES IN: 23h 59m", style: TextStyle(color: Color(0xFFEF4135), fontSize: 9, fontWeight: FontWeight.w900, fontFamily: 'Courier')),
+                                      child: Text(
+                                        "⏳ EXPIRES IN: ${minutesRemaining ~/ 60}h ${minutesRemaining % 60}m",
+                                        style: const TextStyle(color: Color(0xFFEF4135), fontSize: 9, fontWeight: FontWeight.w900, fontFamily: 'Courier'),
+                                      ),
                                     ),
                                   ),
                                   
-                                  Positioned(
-                                    top: 54, left: 0, right: 0,
-                                    child: Column(
-                                      children: [
-                                        Stack(alignment: Alignment.center, children: [
-                                          Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = const Color(0xFFD4AF37))),
-                                          const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white)),
-                                        ]),
-                                        Stack(alignment: Alignment.center, children: [
-                                          Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.2..color = const Color(0xFFD4AF37))),
-                                          const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
-                                        ]),
-                                      ],
-                                    ),
-                                  ),
                                   Positioned(
                                     bottom: 24, left: 0, right: 0,
                                     child: Container(
@@ -1237,13 +1259,22 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               ),
                             ),
                           ),
-                          IconButton(icon: const Icon(Icons.arrow_forward_ios, color: Color(0xFFD4AF37), size: 20), onPressed: () {}),
+                          IconButton(
+                            icon: const Icon(Icons.arrow_forward_ios, color: Color(0xFFD4AF37), size: 24),
+                            onPressed: _activeCarouselHistoryIndex >= _localVideoSessionCarouselArray.length - 1 ? null : () {
+                              setState(() { _activeCarouselHistoryIndex++; });
+                            },
+                          ),
                         ],
                       ),
+// ==========================================
+// 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25 (PART 3)
+// YELLOW SUBTITLES & TEXT TICKER MARQUEE LAYOUTS
+// ==========================================
                       const SizedBox(height: 20),
                       const Text("WHERE WILL YOU BE SHARING THIS?", style: TextStyle(color: Color(0xFFFFCC00), fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
                       const SizedBox(height: 16),
-                      _buildMasterViralShareGrowthEngineButton(),
+                      _buildMasterViralShareGrowthEngineButton(renderStreamUrl, activeVideoObject['id']?.toString() ?? "primary"),
                       const SizedBox(height: 28),
                       _buildReviewDashboardActionControls(),
                     ],
@@ -1272,9 +1303,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
 
     return SingleChildScrollView(
-      controller: marqueeScrollDevice,
-      scrollDirection: Axis.horizontal,
-      physics: const NeverScrollableScrollPhysics(),
+      controller: marqueeScrollDevice, scrollDirection: Axis.horizontal, physics: const NeverScrollableScrollPhysics(),
       child: Row(
         children: [
           const SizedBox(width: 120),
@@ -1294,11 +1323,64 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 
+  void _displayViralStepByStepWalkthroughSheet() {
+    showModalBottomSheet(
+      context: context, backgroundColor: const Color(0xFF0F0F12), isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade800, borderRadius: BorderRadius.circular(2)))),
+              const SizedBox(height: 24),
+              const Center(child: Text("🚀 READY TO GO VIRAL?", style: TextStyle(color: Color(0xFFFFCC00), fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 1.0))),
+              const SizedBox(height: 20),
+              _buildWalkthroughInstructionRow("1", "VIDEO SAVED!", "Your high-definition reaction video has just downloaded directly into your phone's camera roll or files folder."),
+              _buildWalkthroughInstructionRow("2", "TEXT READY IN CLIPBOARD!", "We have automatically copied your custom description tags, invite links, and handle tags directly to your keyboard."),
+              _buildWalkthroughInstructionRow("3", "POST & TAG!", "Open TikTok or Instagram Reels, choose your file from the camera roll, tap 'Paste' in the description box, and post it to the world!"),
+              const SizedBox(height: 24),
+              Container(
+                height: 52, width: double.infinity,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: const LinearGradient(colors: [Color(0xFFD4AF37), Color(0xFFFFC107)])),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                  onPressed: () { 
+                    Navigator.pop(context);
+                    html.window.open('https://tiktok.com', '_blank');
+                  },
+                  child: const Text("LET'S POST IT!", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0)),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWalkthroughInstructionRow(String stepNumber, String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(width: 24, height: 24, decoration: const BoxDecoration(color: Color(0xFFD4AF37), shape: BoxShape.circle), child: Center(child: Text(stepNumber, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)))),
+          const SizedBox(width: 16),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.5)), const SizedBox(height: 2), Text(description, style: TextStyle(color: Colors.grey.shade400, fontSize: 11, height: 1.3))])),
+        ],
+      ),
+    );
+  }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 24 OF 25
-// MASTER SHARE & SAVE DUAL CONVERSION GROWER BUTTON
+// UPDATED DATA-LINKED SHARE & SAVE BUTTON ENGINE
 // ==========================================
-  Widget _buildMasterViralShareGrowthEngineButton() {
+  // 🎯 CONNECTED ARGUMENTS: Accepting the specific target video details passed directly from your carousel slider selection matrix
+  Widget _buildMasterViralShareGrowthEngineButton(String specificTargetVideoUrl, String videoIdMarker) {
     return Container(
       height: 54,
       width: double.infinity,
@@ -1315,35 +1397,28 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ),
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          foregroundColor: Colors.black,
+          backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         onPressed: () {
-          // ACTION 1: AUTO-DOWNLOAD COMP - Drops the unmuted video file onto their device roll
-          if (_recordedVideoUrl != null && _recordedVideoUrl!.isNotEmpty) {
-            final html.AnchorElement saveAnchor = html.AnchorElement(href: _recordedVideoUrl)
-              ..setAttribute("download", "watch_your_language_reaction.mp4")
+          // ACTION 1: AUTO-DOWNLOAD COMP - Uses the correct targeted URL token string pulled directly from the visible index
+          if (specificTargetVideoUrl.isNotEmpty) {
+            final html.AnchorElement saveAnchor = html.AnchorElement(href: specificTargetVideoUrl)
+              ..setAttribute("download", "watch_your_language_reaction_$videoIdMarker.mp4")
               ..style.display = "none";
             html.document.body?.children.add(saveAnchor);
             saveAnchor.click();
             saveAnchor.remove();
           }
 
-          // ACTION 2: CLIPBOARD MARKETING COPY - Primes clipboard with viral loops invites
+          // ACTION 2: CLIPBOARD MARKETING COPY - Pre-loads handles and links
           final String viralPromoString = "Can you pass the prompter test? Try matching my score on Watch Your Language! ➔ @johnathanwise #WatchYourLanguage Game: https://github.io";
           html.window.navigator.clipboard?.writeText(viralPromoString);
 
-          // ACTION 3: DEEP-LINK REDIRECT - Universal fallback opens TikTok upload portal instantly
-          try {
-            html.window.open('https://tiktok.com', '_blank');
-          } catch (_) {
-            html.window.open('https://tiktok.com', '_blank');
-          }
+          // ACTION 3: INTERACTIVE WALKTHROUGH POPUP: Safely invokes your inline stepper instruction panel sheet
+          _displayViralStepByStepWalkthroughSheet();
         },
         icon: const Icon(Icons.share, size: 20, color: Colors.black),
-        // 🎯 RETAG RE-DESIGN: Updated labels to match your conversion goals cleanly
         label: const Text(
           "SHARE & SAVE",
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.2),
