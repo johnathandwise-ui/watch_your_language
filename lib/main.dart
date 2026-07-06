@@ -693,11 +693,21 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 
 // ==========================================
-// 📦 WATCH YOUR LANGUAGE // BLOCK 19 OF 22
-// HOME-ROUTE FULL SENTENCE INTERFACE VIEW
+// 📦 WATCH YOUR LANGUAGE // BLOCK 19 OF 22 (PART 1)
+// ENHANCED BRAND LOGO PROFILE & TALL CHALLENGE SENTENCE BOX
 // ==========================================
   Widget _buildFullSentencePresentationScreen() {
-    final List<Map<String, dynamic>> countryGridMap = [{'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'}, {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'}, {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'}, {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'}, {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'}, {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'}, {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'}, {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'}, {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'}];
+    final List<Map<String, dynamic>> countryGridMap = [
+      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)], 'flag': '🇪🇸'},
+      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)], 'flag': '🇫🇷'},
+      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)], 'flag': '🇩🇪'},
+      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)], 'flag': '🇮🇹'},
+      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)], 'flag': '🇯🇵'},
+      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)], 'flag': '🇵🇹'},
+      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)], 'flag': '🇳🇱'},
+      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)], 'flag': '🇸🇪'},
+      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)], 'flag': '🇰🇷'},
+    ];
     final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
     final List<Color> activeFlagColors = activeLanguageData['colors'] as List<Color>;
     final String activeFlagIcon = activeLanguageData['flag'] as String? ?? '🏳️';
@@ -718,75 +728,91 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(padding: const EdgeInsets.only(top: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("TOP SENTENCE BANNER AD")),
+            Padding(
+              padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+              child: _buildAdMobPlaceholderBannerUnit("TOP SENTENCE BANNER AD"),
+            ),
             Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () { Navigator.pop(context); },
-                        behavior: HitTestBehavior.opaque,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(activeFlagIcon, style: const TextStyle(fontSize: 24)),
-                            const SizedBox(width: 12),
-                            Column(children: [
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  children: [
+                    const Spacer(flex: 1),
+                    GestureDetector(
+                      onTap: () { Navigator.pop(context); },
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(activeFlagIcon, style: const TextStyle(fontSize: 32)),
+                          const SizedBox(width: 16),
+                          Column(
+                            children: [
                               Stack(alignment: Alignment.center, children: [
-                                Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-                                const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white)),
+                                Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                                const Text("WATCH YOUR", textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white)),
                               ]),
                               Stack(alignment: Alignment.center, children: [
-                                Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
-                                const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
+                                Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
+                                const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white)),
                               ]),
-                            ]),
-                            const SizedBox(width: 12),
-                            Text(activeFlagIcon, style: const TextStyle(fontSize: 24)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      const Text("THE FULL CHALLENGE SENTENCE:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                      const SizedBox(height: 16),
-                      Container(width: double.infinity, padding: const EdgeInsets.all(2), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.55), blurRadius: 16, spreadRadius: 2, offset: const Offset(0, 6))], gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight)), child: Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56), decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(14)), child: Text(compiledForeignSentence, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)))),
-                      const SizedBox(height: 48),
-                      Row(children: [
-                        Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: () { _executeVoicePronunciationEngine(compiledForeignSentence); _triggerAdRefresherIncrement(); }, icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))))),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            height: 54,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                              onPressed: _isSpeakingActive ? null : () async { 
-                                // 🎯 STRICT SYNCHRONIZATION: Explicitly awaits camera driver completion before shifting states
-                                if (mounted) { setState(() { isLoading = true; }); }
-                                await _triggerLazyCameraHardwareActivation();
-                                if (mounted) {
-                                  setState(() { 
-                                    isLoading = false;
-                                    isFullSentencePhase = false; 
-                                    isRecordingPhase = true; 
-                                  }); 
-                                  _startRecordingCountdownSequence(); 
-                                }
-                              },
-                              child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1)),
-                            ),
+                              const SizedBox(height: 6),
+                              Text(widget.languageName.toUpperCase(), style: TextStyle(color: Colors.amber.shade400, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2.5)),
+                            ],
                           ),
-                        ),
-                      ]),
-                    ],
-                  ),
+                          const SizedBox(width: 16),
+                          Text(activeFlagIcon, style: const TextStyle(fontSize: 32)),
+                        ],
+                      ),
+                    ),
+                    const Spacer(flex: 2),
+                    const Text("THE FULL CHALLENGE SENTENCE:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity, 
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 76),
+                      decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade900, width: 2), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.35), blurRadius: 16, spreadRadius: 1, offset: const Offset(0, 4))]),
+                      child: Text(compiledForeignSentence.toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold, fontFamily: 'Arial', letterSpacing: 0.5)),
+                    ),
+                    const Spacer(flex: 3),
+                    
+                    // 🎯 PROGRESSIVE PROGRESS INTERACTION PANEL SWITCHER
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: !_hasListenedToCurrentWord
+                          ? Container(
+                              key: const ValueKey('sentence_listen_only'),
+                              height: 54, width: double.infinity,
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]),
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                                onPressed: () { 
+                                  _executeVoicePronunciationEngine(compiledForeignSentence); 
+                                  setState(() { _hasListenedToCurrentWord = true; }); 
+                                },
+                                icon: const Icon(Icons.play_arrow, size: 20, color: Colors.black),
+                                label: const Text("LISTEN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.2)),
+                              ),
+                            )
+                          : Row(
+                              key: const ValueKey('sentence_split_deck'),
+                              children: [
+                                Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton.icon(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: () { _executeVoicePronunciationEngine(compiledForeignSentence); _triggerAdRefresherIncrement(); }, icon: const Icon(Icons.volume_up, size: 18, color: Colors.black), label: const Text("HEAR AGAIN...", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black, letterSpacing: 1.1))))),
+                                const SizedBox(width: 12),
+                                Expanded(child: Container(height: 54, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black, width: 2), gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight), boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 2))]), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isSpeakingActive ? null : () async { if (mounted) { setState(() { isLoading = true; }); } await _triggerLazyCameraHardwareActivation(); if (mounted) { setState(() { isLoading = false; isFullSentencePhase = false; isRecordingPhase = true; _hasListenedToCurrentWord = false; }); _startRecordingCountdownSequence(); } }, child: const Text("YOUR TURN", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.1))))),
+                              ],
+                            ),
+                    ),
+                    
+                    const Spacer(flex: 1),
+                  ],
                 ),
               ),
             ),
-            Padding(padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD")),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+              child: _buildAdMobPlaceholderBannerUnit("BOTTOM SENTENCE BANNER AD"),
+            ),
           ],
         ),
       ),
