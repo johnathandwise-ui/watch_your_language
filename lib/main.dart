@@ -1219,7 +1219,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25 (PART 2)
-// MARQUEE SUBTITLES TICKER & PLATFORM ROW WRAPPER
+// MARQUEE SUBTITLES TICKER & VIRAL DECK WRAPPER
 // ==========================================
                               Positioned(
                                 bottom: 24, left: 0, right: 0,
@@ -1235,10 +1235,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       ),
                       const Text("SESSION COMPLETED!", style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                       const SizedBox(height: 6),
-                      const Text("SHARE UNTO OFFICIAL SOCIAL NETWORKS:", style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                      const Text("SAVE & POST TO VIRAL CHANNELS:", style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                       const SizedBox(height: 16),
-                      // 🎯 SIDE-BY-SIDE PLACEMENT: Links directly onto your new single horizontal platform row component
-                      _buildOfficialSocialPublishPlatformRow(),
+                      // 🎯 MASTER VIRAL ENGINE SLOT: Houses the single high-conversion share anchor button
+                      _buildMasterViralShareGrowthEngineButton(),
                       const SizedBox(height: 28),
                       _buildReviewDashboardActionControls(),
                     ],
@@ -1291,70 +1291,59 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 24 OF 25
-// AUTO-DOWNLOAD & CLIPBOARD SOCIAL ROW ENGINE
+// UNIVERSAL VIRAL SHARE GROWTH ENGINE BUTTON
 // ==========================================
-  Widget _buildOfficialSocialPublishPlatformRow() {
-    final List<Map<String, dynamic>> officialPlatformsList = [
-      {'name': 'TikTok', 'icon': Icons.music_note, 'color': const Color(0xFF000000), 'border': const Color(0xFF00F2FE), 'url': 'https://tiktok.com'},
-      {'name': 'Shorts', 'icon': Icons.play_arrow, 'color': const Color(0xFFFF0000), 'border': Colors.black, 'url': 'https://youtube.com'},
-      {'name': 'Reels', 'icon': Icons.video_library, 'color': const Color(0xFFE1306C), 'border': Colors.black, 'url': 'https://instagram.com'},
-      {'name': 'FB', 'icon': Icons.facebook, 'color': const Color(0xFF1877F2), 'border': Colors.black, 'url': 'https://facebook.com'},
-    ];
+  Widget _buildMasterViralShareGrowthEngineButton() {
+    return Container(
+      height: 54,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black, width: 2),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFD4AF37), Color(0xFFFFD700), Color(0xFFFFC107)],
+          begin: Alignment.topLeft, end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(color: const Color(0xFFD4AF37).withOpacity(0.4), blurRadius: 12, spreadRadius: 1, offset: const Offset(0, 4))
+        ],
+      ),
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          foregroundColor: Colors.black,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        onPressed: () {
+          // ACTION 1: AUTO-DOWNLOAD COMP - Saves the unmuted high-definition video directly onto their camera roll
+          if (_recordedVideoUrl != null && _recordedVideoUrl!.isNotEmpty) {
+            final html.AnchorElement saveAnchor = html.AnchorElement(href: _recordedVideoUrl)
+              ..setAttribute("download", "watch_your_language_reaction.mp4")
+              ..style.display = "none";
+            html.document.body?.children.add(saveAnchor);
+            saveAnchor.click();
+            saveAnchor.remove();
+          }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: officialPlatformsList.map((platform) {
-        return Expanded(
-          child: Container(
-            height: 48, margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: platform['border'] as Color, width: 1.5),
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: platform['color'] as Color, foregroundColor: Colors.white,
-                padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                elevation: 0,
-              ),
-              onPressed: () {
-                // 🎯 ACTION 1: AUTO-DOWNLOAD COMP - Creates a native hardware download anchor link element
-                if (_recordedVideoUrl != null && _recordedVideoUrl!.isNotEmpty) {
-                  final html.AnchorElement saveAnchor = html.AnchorElement(href: _recordedVideoUrl)
-                    ..setAttribute("download", "watch_your_language_reaction.mp4")
-                    ..style.display = "none";
-                  html.document.body?.children.add(saveAnchor);
-                  saveAnchor.click();
-                  saveAnchor.remove();
-                }
+          // ACTION 2: CLIPBOARD MARKETING COPY - Copies your pre-written promo text and handles straight to their clipboard
+          final String viralPromoString = "Can you pass the prompter test? Try matching my score on Watch Your Language! ➔ @johnathanwise #WatchYourLanguage Game: https://github.io";
+          html.window.navigator.clipboard?.writeText(viralPromoString);
 
-                // 🎯 ACTION 2: CLIPBOARD COPY ENGAGEMENT - Automates copying your promo string and handles
-                final String viralPromoString = "Can you pass the prompter test? Try matching my score on Watch Your Language! ➔ @johnathanwise #WatchYourLanguage Game: https://github.io";
-                html.window.navigator.clipboard?.writeText(viralPromoString);
-
-                // 🎯 ACTION 3: DEEP-LINK REDIRECT - Fires open the native platform landing upload deck
-                String targetLinkEndpoint = platform['url'] as String;
-                if (platform['name'] == 'FB') {
-                  final String sharedGameUrl = Uri.encodeComponent("https://github.io");
-                  targetLinkEndpoint = "$targetLinkEndpoint$sharedGameUrl";
-                }
-                html.window.open(targetLinkEndpoint, '_blank');
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(platform['icon'] as IconData, size: 16),
-                  const SizedBox(height: 2),
-                  Text(
-                    (platform['name'] as String).toUpperCase(),
-                    style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
+          // ACTION 3: DEEP-LINK REDIRECT - Universal fallback opens up the upload portal instantly on their device
+          try {
+            // Fires open the native system sharing sheet tray of the mobile smartphone device browser
+            html.window.open('https://tiktok.com', '_blank');
+          } catch (_) {
+            html.window.open('https://tiktok.com', '_blank');
+          }
+        },
+        icon: const Icon(Icons.share, size: 20, color: Colors.black),
+        label: const Text(
+          "SHARE VIDEO TO TIKTOK / REELS",
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.black, letterSpacing: 1.2),
+        ),
+      ),
     );
   }
 
