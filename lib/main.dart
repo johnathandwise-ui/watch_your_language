@@ -327,36 +327,29 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
         
-        // 🎯 UN-CRASHABLE PARSER: Walks down nested elements dynamically without brittle force-casting locks
-        if (outerRawData is List && outerRawData.isNotEmpty) {
-          final dynamic levelOne = outerRawData[0];
-          if (levelOne is List && levelOne.isNotEmpty) {
-            StringBuffer sentenceBuffer = StringBuffer();
-            for (var segment in levelOne) {
-              if (segment is List && segment.isNotEmpty) {
-                final dynamic pureTextElement = segment[0];
-                if (pureTextElement != null) {
-                  sentenceBuffer.write(pureTextElement.toString() + " ");
-                }
-              }
+        // 🎯 BULLETPROOF MATRIX DECODER: Safely extracts pure text string indices
+        if (outerRawData is List && outerRawData.isNotEmpty && outerRawData[0] is List) {
+          final List sentenceSegmentsList = outerRawData[0] as List;
+          StringBuffer sentenceBuffer = StringBuffer();
+          
+          for (var segment in sentenceSegmentsList) {
+            if (segment is List && segment.isNotEmpty && segment[0] != null) {
+              sentenceBuffer.write(segment[0].toString() + " ");
             }
-            if (sentenceBuffer.isNotEmpty) {
-              translatedSentence = sentenceBuffer.toString().trim();
-              parseSucceeded = true;
-            }
+          }
+          
+          if (sentenceBuffer.isNotEmpty) {
+            translatedSentence = sentenceBuffer.toString().trim();
+            parseSucceeded = true;
           }
         }
       }
-    } catch (_) {
-      // Catch prevents background thread stalls
-    }
+    } catch (_) {}
 
-    // 🛡️ UNBREAKABLE FALLBACK SHIELD: If network fails or parsing type-checks slip, use English and continue the game loop!
     if (!parseSucceeded || translatedSentence.isEmpty) {
       translatedSentence = englishSentence;
     }
 
-    // Purify and prepare individual cards layout stream tracks safely
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
       final String cleanAsianText = translatedSentence.replaceAll(RegExp(r'[^\p{L}\p{N}]+', unicode: true), '').trim();
@@ -366,14 +359,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       parsedWordsList = cleanWesternText.split(" ").where((String w) => w.trim().isNotEmpty).toList();
     }
 
-    // 🎯 CRITICAL STATE RECOVERY: Guarantees loading screens close under all operational conditions
     if (mounted) {
       setState(() {
         finalEnglishMeaning = englishSentence;
         compiledForeignSentence = translatedSentence;
         _currentFlashcardWord = parsedWordsList;
         currentWordIndex = 0;
-        isLoading = false; // Opens the page view
+        isLoading = false;
         isRehearsalPhase = true;
       });
       _startCueCardCacheImpressionTimer();
@@ -583,20 +575,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// FLEXIBLE RESPONSIVE DECK & BALANCED SPACERS
+// STABLE BOUNDED RESPONSIVE DECK CANVAS
 // ==========================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord, String flagIcon) {
     final bool isInteractionProhibited = _isDelayActive || _isSpeakingActive;
 
-    return Container(
-      // Constrain the block to the full height available between the top and bottom banners
-      constraints: const BoxConstraints.expand(),
+    return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min, // 🎯 Prevents infinite layout expansion freezes
         children: [
-          // 🎯 SPACER 1: Pushes the header away from the very top of the safe area bounds
-          const Spacer(flex: 2),
-
           GestureDetector(
             onTap: () { Navigator.pop(context); },
             behavior: HitTestBehavior.opaque,
@@ -616,7 +604,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
                     ]),
                     const SizedBox(height: 4),
-                    Text(widget.languageName.toUpperCase(), style: const TextStyle(color: Color.fromARGB(255, 235, 204, 5), fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 2.5)),
+                    Text(widget.languageName.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 2.5)),
                   ],
                 ),
                 const SizedBox(width: 12),
@@ -624,16 +612,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ],
             ),
           ),
-
-          // 🎯 SPACER 2: Spreads the space between the logo header and the instructions prompt
-          const Spacer(flex: 3),
+          const SizedBox(height: 24),
           const Text("SAY THIS WORD:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          
-          // 🎯 MASSIVE CUE CARD VIEWPORT CONTAINER
           Container(
             width: double.infinity, 
-            padding: const EdgeInsets.symmetric(vertical: 48),
+            padding: const EdgeInsets.symmetric(vertical: 64),
             decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade900, width: 2), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.35), blurRadius: 16, spreadRadius: 1, offset: const Offset(0, 4))]),
             child: _isDelayActive 
                 ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
@@ -644,10 +628,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           ),
           const SizedBox(height: 10),
           Text("WORD ${currentWordIndex + 1} OF ${_currentFlashcardWord.length}", style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold)),
-
-          // 🎯 SPACER 3: Dynamic distribution spring balances the control buttons safely down towards the fold fold
-          const Spacer(flex: 4),
-
+          const SizedBox(height: 24),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             child: !_hasListenedToCurrentWord
@@ -674,9 +655,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                     ],
                   ),
           ),
-          
-          // 🎯 SPACER 4: Micro cushioning layer anchors the final button row elegantly directly above the bottom banner
-          const Spacer(flex: 1),
         ],
       ),
     );
