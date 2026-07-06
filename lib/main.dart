@@ -538,7 +538,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 25
-// THREAD-SAFE VIDEO RECOVERY ENGINE
+// UNBLOCKED MUTED VIDEO PLAYBACK ENGINE
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -565,10 +565,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     try {
       if (mounted) { setState(() { isCutButtonLocked = true; isLoading = true; isRecordingPhase = false; }); }
 
-      // 🎯 BACKGROUND PROCESS LOGIC: Fire the loading phase immediately to un-freeze your CUT button actions
       final XFile recordedVideoFile = await _cameraController!.stopVideoRecording();
       
-      // We push the heavy byte arrays processing to a safe background task window to prevent thread lockups
       Future.microtask(() async {
         try {
           final List<int> videoFileBytesArray = await recordedVideoFile.readAsBytes();
@@ -578,6 +576,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           _reviewVideoController = VideoPlayerController.networkUrl(Uri.parse(_recordedVideoUrl!));
           await _reviewVideoController!.initialize();
           await _reviewVideoController!.setLooping(true);
+          // 🎯 THE WEB AUTOPLAY UNBLOCKER: Muting the review playback engine forces the browser to play instantly
+          await _reviewVideoController!.setVolume(0.0);
           _reviewVideoController!.play();
         } catch (_) {}
       });
@@ -585,7 +585,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       _cameraController?.dispose();
       _cameraController = null;
       
-      // Instantly advance the gameplay timeline onto the interstitial ad system state
       Timer(const Duration(milliseconds: 1200), () {
         if (mounted) { setState(() { isLoading = false; isPlaybackReviewPhase = true; }); }
       });
@@ -1137,7 +1136,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25
-// HD 9:16 LIVE VIDEO PLAYBACK REVIEW SUITE
+// HD 9:16 LIVE VIDEO REVIEW & ROLLING SUBTITLES ENGINE
 // ==========================================
   Widget _buildPostProductionReviewScreen() {
     final String cleanForeignText = compiledForeignSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
@@ -1168,7 +1167,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           borderRadius: BorderRadius.circular(18),
                           child: Stack(
                             children: [
-                              // 🚀 REAL HD LOOPING VIDEO LAYER: Renders the player's actual recorded reaction footage fluidly
                               Positioned.fill(
                                 child: (_reviewVideoController != null && _reviewVideoController!.value.isInitialized)
                                     ? AspectRatio(aspectRatio: _reviewVideoController!.value.aspectRatio, child: VideoPlayer(_reviewVideoController!))
@@ -1191,19 +1189,13 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                 ),
                               ),
                               
+                              // 🎯 ROLLING SUBTITLE TICKER ENGINE: Replicates the scrolling teleprompter flow inside a safe layout frame
                               Positioned(
-                                bottom: 24, left: 12, right: 12,
+                                bottom: 24, left: 0, right: 0,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.8), borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.grey.shade900, width: 1)),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(cleanForeignText, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-                                      const SizedBox(height: 4),
-                                      Text("➔ ($cleanEnglishText)", textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.amber.shade400, fontSize: 9, fontWeight: FontWeight.bold)),
-                                    ],
-                                  ),
+                                  height: 38,
+                                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.85), border: Border.symmetric(horizontal: BorderSide(color: Colors.grey.shade900, width: 1))),
+                                  child: _buildReviewCanvasHorizontalMarqueeSubtitles(cleanForeignText, cleanEnglishText),
                                 ),
                               ),
                             ],
@@ -1225,6 +1217,44 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
             Padding(padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16), child: _buildAdMobPlaceholderBannerUnit("BOTTOM REVIEW RESULTS BANNER AD")),
           ],
         ),
+      ),
+    );
+  }
+
+  // 🎯 SUB-COMPONENT MARQUEE ANIMATOR: Drives a continuous linear scroll animation loop across your video card review panel
+  Widget _buildReviewCanvasHorizontalMarqueeSubtitles(String foreignLine, String englishLine) {
+    final ScrollController marqueeScrollDevice = ScrollController();
+    
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (!marqueeScrollDevice.hasClients) return false;
+      try {
+        final double targetEndScroll = marqueeScrollDevice.position.maxScrollExtent;
+        await marqueeScrollDevice.animateTo(targetEndScroll, duration: const Duration(seconds: 10), curve: Curves.linear);
+        if (marqueeScrollDevice.hasClients) marqueeScrollDevice.jumpTo(0.0);
+      } catch (_) {}
+      return true;
+    });
+
+    return SingleChildScrollView(
+      controller: marqueeScrollDevice,
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      child: Row(
+        children: [
+          const SizedBox(width: 140),
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2, fontFamily: 'Arial'),
+              children: [
+                TextSpan(text: "$foreignLine    ", style: const TextStyle(color: Colors.white)),
+                const TextSpan(text: " ➔  ", style: TextStyle(color: Color(0xFFFFC107))),
+                TextSpan(text: "($englishLine)", style: TextStyle(color: Color(0xFFFFC107))),
+              ],
+            ),
+          ),
+          const SizedBox(width: 240),
+        ],
       ),
     );
   }
