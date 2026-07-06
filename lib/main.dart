@@ -1291,10 +1291,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 24 OF 25
-// SIDE-BY-SIDE OFFICIAL SOCIAL BUTTON DECK ROWS
+// AUTO-DOWNLOAD & CLIPBOARD SOCIAL ROW ENGINE
 // ==========================================
   Widget _buildOfficialSocialPublishPlatformRow() {
-    // Official branding palette array mappings
     final List<Map<String, dynamic>> officialPlatformsList = [
       {'name': 'TikTok', 'icon': Icons.music_note, 'color': const Color(0xFF000000), 'border': const Color(0xFF00F2FE), 'url': 'https://tiktok.com'},
       {'name': 'Shorts', 'icon': Icons.play_arrow, 'color': const Color(0xFFFF0000), 'border': Colors.black, 'url': 'https://youtube.com'},
@@ -1302,35 +1301,42 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       {'name': 'FB', 'icon': Icons.facebook, 'color': const Color(0xFF1877F2), 'border': Colors.black, 'url': 'https://facebook.com'},
     ];
 
-    final String targetGameShareUrl = Uri.encodeComponent("https://github.io");
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: officialPlatformsList.map((platform) {
         return Expanded(
           child: Container(
-            height: 48,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
+            height: 48, margin: const EdgeInsets.symmetric(horizontal: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: platform['border'] as Color, width: 1.5),
-              boxShadow: [
-                BoxShadow(color: (platform['color'] as Color).withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))
-              ],
             ),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: platform['color'] as Color,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                backgroundColor: platform['color'] as Color, foregroundColor: Colors.white,
+                padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 elevation: 0,
               ),
               onPressed: () {
-                // Official web redirect launch trigger passes target app paths safely
+                // 🎯 ACTION 1: AUTO-DOWNLOAD COMP - Creates a native hardware download anchor link element
+                if (_recordedVideoUrl != null && _recordedVideoUrl!.isNotEmpty) {
+                  final html.AnchorElement saveAnchor = html.AnchorElement(href: _recordedVideoUrl)
+                    ..setAttribute("download", "watch_your_language_reaction.mp4")
+                    ..style.display = "none";
+                  html.document.body?.children.add(saveAnchor);
+                  saveAnchor.click();
+                  saveAnchor.remove();
+                }
+
+                // 🎯 ACTION 2: CLIPBOARD COPY ENGAGEMENT - Automates copying your promo string and handles
+                final String viralPromoString = "Can you pass the prompter test? Try matching my score on Watch Your Language! ➔ @johnathanwise #WatchYourLanguage Game: https://github.io";
+                html.window.navigator.clipboard?.writeText(viralPromoString);
+
+                // 🎯 ACTION 3: DEEP-LINK REDIRECT - Fires open the native platform landing upload deck
                 String targetLinkEndpoint = platform['url'] as String;
                 if (platform['name'] == 'FB') {
-                  targetLinkEndpoint = "$targetLinkEndpoint$targetGameShareUrl";
+                  final String sharedGameUrl = Uri.encodeComponent("https://github.io");
+                  targetLinkEndpoint = "$targetLinkEndpoint$sharedGameUrl";
                 }
                 html.window.open(targetLinkEndpoint, '_blank');
               },
