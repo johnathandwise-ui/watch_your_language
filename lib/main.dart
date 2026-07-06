@@ -413,46 +413,44 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 13 OF 22
-// WEB-SAFE HIGH-STABILITY SPEECH ENGINES
+// HYPER-LOCALIZED NATIONAL ACCENT SELECTORS
 // ==========================================
   void _executeVoicePronunciationEngine(String textToSpeak) async {
     if (textToSpeak.isEmpty || textToSpeak == "LOADING...") return;
-    String ttsLocaleCode = "es-ES";
+    String ttsLocaleCode = "es-MX"; // Default to smooth Spanish accent
+    
+    // 🎯 ACCENT ENGINE HOOKS: Bind explicit national localized dialects to force native browser pitch shifts
     switch (widget.languageName) {
-      case 'Spanish': ttsLocaleCode = "es-ES"; break;
-      case 'French': ttsLocaleCode = "fr-FR"; break;
-      case 'German': ttsLocaleCode = "de-DE"; break;
-      case 'Italian': ttsLocaleCode = "it-IT"; break;
-      case 'Japanese': ttsLocaleCode = "ja-JP"; break;
-      case 'Portuguese': ttsLocaleCode = "pt-PT"; break;
-      case 'Dutch': ttsLocaleCode = "nl-NL"; break;
-      case 'Swedish': ttsLocaleCode = "sv-SE"; break;
-      case 'Korean': ttsLocaleCode = "ko-KR"; break;
+      case 'Spanish': ttsLocaleCode = "es-MX"; break;     // Sharp Latin American Spanish vowels
+      case 'French': ttsLocaleCode = "fr-FR"; break;      // Pure Parisian French inflections
+      case 'German': ttsLocaleCode = "de-DE"; break;      // Solid Berlin German enunciations
+      case 'Italian': ttsLocaleCode = "it-IT"; break;     // Rhythmic Roman Italian cadence
+      case 'Japanese': ttsLocaleCode = "ja-JP"; break;    // Authentic native Tokyo character speed
+      case 'Portuguese': ttsLocaleCode = "pt-PT"; break;  // Direct Lisbon Portuguese pronunciation
+      case 'Dutch': ttsLocaleCode = "nl-NL"; break;       // Flat Amsterdam Dutch phonetics
+      case 'Swedish': ttsLocaleCode = "sv-SE"; break;     // Traditional Stockholm Swedish tone
+      case 'Korean': ttsLocaleCode = "ko-KR"; break;      // Clean Seoul Korean syllable tracking
     }
     
-    // 🔏 WEB-SAFE LOCKOUT: Stripping brittle native completion handlers stops mobile browser freezing dead
     if (mounted) { 
       setState(() { _isSpeakingActive = true; }); 
     }
     
     try {
+      // Pass the targeted national accent straight down to the phone's browser core synthesiser
       await _flutterTts.setLanguage(ttsLocaleCode);
       await _flutterTts.setSpeechRate(0.42);
       await _flutterTts.speak(textToSpeak);
     } catch (_) {}
 
-    // ⏱️ TIME-DURATION CALCULATOR SIMULATION ENGINE
-    // Calculates a dynamic reading pacing window based on text scale length to unlock interaction buttons automatically
     int wordLengthCalculationWeight = textToSpeak.length * 110; 
     int absoluteMinimumBufferWindow = wordLengthCalculationWeight < 750 ? 750 : wordLengthCalculationWeight;
-    if (absoluteMinimumBufferWindow > 4000) absoluteMinimumBufferWindow = 4000; // Hard ceiling stop cap safety gate
+    if (absoluteMinimumBufferWindow > 4000) absoluteMinimumBufferWindow = 4000;
     
     Timer(Duration(milliseconds: absoluteMinimumBufferWindow), () {
       if (mounted) { 
-        setState(() { 
-          _isSpeakingActive = false; 
-        }); 
-        _triggerAdRefresherIncrement(); // Keeps your Google AdMob placement refreshes rolling securely
+        setState(() { _isSpeakingActive = false; }); 
+        _triggerAdRefresherIncrement();
       }
     });
   }
