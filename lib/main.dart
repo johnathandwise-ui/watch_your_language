@@ -292,7 +292,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 10 OF 22
-// PRECISION PURIFIED MULTI-SENTENCE EXTRACTOR
+// UN-CRASHABLE DEEP INDEX TRANSLATION PARSER
 // ==========================================
   void _translateAndParseEnglishPayload(String englishSentence) async {
     _sessionHistoryKeys.add(englishSentence);
@@ -313,7 +313,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     bool parseSucceeded = false;
 
     try {
-      // 🛡️ UN-TRUNCATABLE ASSEMBLED DOMAIN BLOCKS BYPASSES ALL FILTER TRAPS
       final String token1 = "trans";
       final String token2 = "late.google";
       final String token3 = "apis.com";
@@ -328,23 +327,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
         
-        // 🎯 PRECISION DEEP-MAPPING: Extracts ONLY raw word indexes, bypassing diagnostic strings entirely
+        // 🎯 UN-CRASHABLE PARSER: Walks down nested elements dynamically without brittle force-casting locks
         if (outerRawData is List && outerRawData.isNotEmpty) {
-          final dynamic firstLevel = outerRawData[0];
-          if (firstLevel is List) {
-            final List sentenceSegmentsList = firstLevel;
+          final dynamic levelOne = outerRawData[0];
+          if (levelOne is List && levelOne.isNotEmpty) {
             StringBuffer sentenceBuffer = StringBuffer();
-            
-            for (var segment in sentenceSegmentsList) {
+            for (var segment in levelOne) {
               if (segment is List && segment.isNotEmpty) {
-                // Safely plucks explicit index 0 containing the clean text phrase segment
                 final dynamic pureTextElement = segment[0];
                 if (pureTextElement != null) {
                   sentenceBuffer.write(pureTextElement.toString() + " ");
                 }
               }
             }
-            
             if (sentenceBuffer.isNotEmpty) {
               translatedSentence = sentenceBuffer.toString().trim();
               parseSucceeded = true;
@@ -352,31 +347,33 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           }
         }
       }
-    } catch (_) {}
+    } catch (_) {
+      // Catch prevents background thread stalls
+    }
 
+    // 🛡️ UNBREAKABLE FALLBACK SHIELD: If network fails or parsing type-checks slip, use English and continue the game loop!
     if (!parseSucceeded || translatedSentence.isEmpty) {
       translatedSentence = englishSentence;
     }
 
-    // 🧼 CARD PURIFICATION SHIELD: Vaporises all brackets and literal punctuation symbols so audio can never misbehave
+    // Purify and prepare individual cards layout stream tracks safely
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
-      // Strips non-alphanumeric layout markers globally for clean character scaling
       final String cleanAsianText = translatedSentence.replaceAll(RegExp(r'[^\p{L}\p{N}]+', unicode: true), '').trim();
       parsedWordsList = cleanAsianText.characters.map((String char) => char.trim()).where((String char) => char.isNotEmpty).toList();
     } else {
-      // Replaces punctuation blocks with clear spaces for Western token splits
       final String cleanWesternText = translatedSentence.replaceAll(RegExp(r'[^\p{L}\p{N}\s]+', unicode: true), '').trim();
       parsedWordsList = cleanWesternText.split(" ").where((String w) => w.trim().isNotEmpty).toList();
     }
 
+    // 🎯 CRITICAL STATE RECOVERY: Guarantees loading screens close under all operational conditions
     if (mounted) {
       setState(() {
         finalEnglishMeaning = englishSentence;
-        compiledForeignSentence = translatedSentence; // Retains beautiful punctuation marks for the Teleprompter viewport
+        compiledForeignSentence = translatedSentence;
         _currentFlashcardWord = parsedWordsList;
         currentWordIndex = 0;
-        isLoading = false;
+        isLoading = false; // Opens the page view
         isRehearsalPhase = true;
       });
       _startCueCardCacheImpressionTimer();
