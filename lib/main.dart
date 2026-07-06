@@ -417,19 +417,18 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 // ==========================================
   void _executeVoicePronunciationEngine(String textToSpeak) async {
     if (textToSpeak.isEmpty || textToSpeak == "LOADING...") return;
-    String ttsLocaleCode = "es-MX"; // Default to smooth Spanish accent
+    String ttsLocaleCode = "es-MX"; 
     
-    // 🎯 ACCENT ENGINE HOOKS: Bind explicit national localized dialects to force native browser pitch shifts
     switch (widget.languageName) {
-      case 'Spanish': ttsLocaleCode = "es-MX"; break;     // Sharp Latin American Spanish vowels
-      case 'French': ttsLocaleCode = "fr-FR"; break;      // Pure Parisian French inflections
-      case 'German': ttsLocaleCode = "de-DE"; break;      // Solid Berlin German enunciations
-      case 'Italian': ttsLocaleCode = "it-IT"; break;     // Rhythmic Roman Italian cadence
-      case 'Japanese': ttsLocaleCode = "ja-JP"; break;    // Authentic native Tokyo character speed
-      case 'Portuguese': ttsLocaleCode = "pt-PT"; break;  // Direct Lisbon Portuguese pronunciation
-      case 'Dutch': ttsLocaleCode = "nl-NL"; break;       // Flat Amsterdam Dutch phonetics
-      case 'Swedish': ttsLocaleCode = "sv-SE"; break;     // Traditional Stockholm Swedish tone
-      case 'Korean': ttsLocaleCode = "ko-KR"; break;      // Clean Seoul Korean syllable tracking
+      case 'Spanish': ttsLocaleCode = "es-MX"; break;     
+      case 'French': ttsLocaleCode = "fr-FR"; break;      
+      case 'German': ttsLocaleCode = "de-DE"; break;      
+      case 'Italian': ttsLocaleCode = "it-IT"; break;     
+      case 'Japanese': ttsLocaleCode = "ja-JP"; break;    
+      case 'Portuguese': ttsLocaleCode = "pt-PT"; break;  
+      case 'Dutch': ttsLocaleCode = "nl-NL"; break;       
+      case 'Swedish': ttsLocaleCode = "sv-SE"; break;     
+      case 'Korean': ttsLocaleCode = "ko-KR"; break;      
     }
     
     if (mounted) { 
@@ -437,7 +436,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     }
     
     try {
-      // Pass the targeted national accent straight down to the phone's browser core synthesiser
+      // 🎯 Direct Browser Voice Integration hooks right into your mobile engine parameters
       await _flutterTts.setLanguage(ttsLocaleCode);
       await _flutterTts.setSpeechRate(0.42);
       await _flutterTts.speak(textToSpeak);
@@ -445,7 +444,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
     int wordLengthCalculationWeight = textToSpeak.length * 110; 
     int absoluteMinimumBufferWindow = wordLengthCalculationWeight < 750 ? 750 : wordLengthCalculationWeight;
-    if (absoluteMinimumBufferWindow > 4000) absoluteMinimumBufferWindow = 4000;
+    if (absoluteMinimumBufferWindow > 4000) absoluteMinimumBufferWindow = 4000; 
     
     Timer(Duration(milliseconds: absoluteMinimumBufferWindow), () {
       if (mounted) { 
@@ -574,16 +573,17 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 22
-// STABLE BOUNDED RESPONSIVE DECK CANVAS
+// AMBER TYPOGRAPHY & EXPANDED RESPONSIVE SPACING
 // ==========================================
   Widget _buildCenterCueCardBlock(List<Color> activeFlagColors, String activeCueWord, String flagIcon) {
     final bool isInteractionProhibited = _isDelayActive || _isSpeakingActive;
 
-    return Center(
+    return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min, // 🎯 Prevents infinite layout expansion freezes
         children: [
+          const Spacer(flex: 2),
+          
           GestureDetector(
             onTap: () { Navigator.pop(context); },
             behavior: HitTestBehavior.opaque,
@@ -602,8 +602,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, foreground: Paint()..style = PaintingStyle.stroke..strokeWidth = 1.5..color = const Color(0xFFD4AF37), shadows: [Shadow(offset: const Offset(0, 2), blurRadius: 4, color: Colors.red.shade900)])),
                       const Text("LANGUAGE", textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
                     ]),
-                    const SizedBox(height: 4),
-                    Text(widget.languageName.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 2.5)),
+                    const SizedBox(height: 6),
+                    // 🎯 AMBER YELLOW REALIGNMENT: Updates your room title text styling cleanly
+                    Text(
+                      widget.languageName.toUpperCase(), 
+                      style: TextStyle(color: Colors.amber.shade400, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2.5),
+                    ),
                   ],
                 ),
                 const SizedBox(width: 12),
@@ -611,12 +615,14 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+
+          const Spacer(flex: 3),
           const Text("SAY THIS WORD:", style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           const SizedBox(height: 12),
+          
           Container(
             width: double.infinity, 
-            padding: const EdgeInsets.symmetric(vertical: 64),
+            padding: const EdgeInsets.symmetric(vertical: 48),
             decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade900, width: 2), boxShadow: [BoxShadow(color: Colors.red.shade900.withOpacity(0.35), blurRadius: 16, spreadRadius: 1, offset: const Offset(0, 4))]),
             child: _isDelayActive 
                 ? const Center(child: SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Color(0xFFD4AF37), strokeWidth: 3)))
@@ -627,7 +633,9 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           ),
           const SizedBox(height: 10),
           Text("WORD ${currentWordIndex + 1} OF ${_currentFlashcardWord.length}", style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 24),
+
+          const Spacer(flex: 4),
+
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             child: !_hasListenedToCurrentWord
@@ -654,6 +662,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                     ],
                   ),
           ),
+          
+          const Spacer(flex: 1),
         ],
       ),
     );
