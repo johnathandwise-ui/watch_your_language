@@ -280,7 +280,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 10 OF 22
-// MULTI-SENTENCE MATRIX TRANSLATION STRING EXTRACTOR
+// PRECISION PURIFIED MULTI-SENTENCE EXTRACTOR
 // ==========================================
   void _translateAndParseEnglishPayload(String englishSentence) async {
     _sessionHistoryKeys.add(englishSentence);
@@ -316,18 +316,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       if (response.statusCode == 200) {
         final dynamic outerRawData = json.decode(response.body);
         
-        // 🎯 MULTI-SENTENCE ASSEMBLER Loop extracts text fragments across all arrays
+        // 🎯 PRECISION DEEP-MAPPING: Extracts ONLY raw word indexes, bypassing diagnostic strings entirely
         if (outerRawData is List && outerRawData.isNotEmpty) {
-          final dynamic firstElement = outerRawData[0];
-          if (firstElement is List) {
-            final List sentenceSegmentsList = firstElement;
+          final dynamic firstLevel = outerRawData[0];
+          if (firstLevel is List) {
+            final List sentenceSegmentsList = firstLevel;
             StringBuffer sentenceBuffer = StringBuffer();
             
             for (var segment in sentenceSegmentsList) {
               if (segment is List && segment.isNotEmpty) {
-                final dynamic translationPiece = segment[0];
-                if (translationPiece != null) {
-                  sentenceBuffer.write(translationPiece.toString());
+                // Safely plucks explicit index 0 containing the clean text phrase segment
+                final dynamic pureTextElement = segment[0];
+                if (pureTextElement != null) {
+                  sentenceBuffer.write(pureTextElement.toString() + " ");
                 }
               }
             }
@@ -341,25 +342,26 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     } catch (_) {}
 
-    // Safe fallback defaults directly back to core English text if connection drops out
     if (!parseSucceeded || translatedSentence.isEmpty) {
       translatedSentence = englishSentence;
     }
 
-    // Clean out loose array meta symbols while beautifully locking down text alignment
+    // 🧼 CARD PURIFICATION SHIELD: Vaporises all brackets and literal punctuation symbols so audio can never misbehave
     List<String> parsedWordsList = [];
     if (widget.languageName == 'Japanese' || widget.languageName == 'Korean') {
-      final String cleanSystemBrackets = translatedSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').trim();
-      parsedWordsList = cleanSystemBrackets.characters.map((String char) => char.trim()).where((String char) => char.isNotEmpty).toList();
+      // Strips non-alphanumeric layout markers globally for clean character scaling
+      final String cleanAsianText = translatedSentence.replaceAll(RegExp(r'[^\p{L}\p{N}]+', unicode: true), '').trim();
+      parsedWordsList = cleanAsianText.characters.map((String char) => char.trim()).where((String char) => char.isNotEmpty).toList();
     } else {
-      final String cleanWesternBrackets = translatedSentence.replaceAll(RegExp(r'[\[\]\{\}]+'), '').trim();
-      parsedWordsList = cleanWesternBrackets.split(" ").where((String w) => w.trim().isNotEmpty).toList();
+      // Replaces punctuation blocks with clear spaces for Western token splits
+      final String cleanWesternText = translatedSentence.replaceAll(RegExp(r'[^\p{L}\p{N}\s]+', unicode: true), '').trim();
+      parsedWordsList = cleanWesternText.split(" ").where((String w) => w.trim().isNotEmpty).toList();
     }
 
     if (mounted) {
       setState(() {
         finalEnglishMeaning = englishSentence;
-        compiledForeignSentence = translatedSentence;
+        compiledForeignSentence = translatedSentence; // Retains beautiful punctuation marks for the Teleprompter viewport
         _currentFlashcardWord = parsedWordsList;
         currentWordIndex = 0;
         isLoading = false;
