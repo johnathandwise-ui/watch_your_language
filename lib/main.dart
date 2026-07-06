@@ -89,7 +89,7 @@ Widget _buildAdMobPlaceholderBannerUnit(String contextPlacementLabel) {
 }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCKS 3, 4, 5 & 6 OF 25
-// UNIFIED MASTER CANVAS WITH LIVE GRADIENT TILES
+// UNIFIED MASTER CANVAS WITH TYPE-SAFE GRADIENT FLOODED TILES
 // ==========================================
 class LanguageSelectorScreen extends StatelessWidget {
   final List<CameraDescription> cameras;
@@ -134,7 +134,7 @@ class LanguageSelectorScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 40),
-              // 🎯 RESTORED HOMEPAGE GRADIENT TILES
+              
               Expanded(
                 child: GridView.builder(
                   itemCount: languageGridList.length,
@@ -143,26 +143,53 @@ class LanguageSelectorScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final item = languageGridList[index];
                     final List<Color> activeFlagColors = item['colors'] as List<Color>;
+                    
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => GameLoopScreen(cameras: cameras, languageName: item['name'] as String)));
                       },
                       child: Container(
-                        decoration: BoxDecoration(color: const Color(0xFF0F0F12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade900, width: 2), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 3))]),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
-                                shape: BoxShape.circle,
+                        padding: const EdgeInsets.all(2.5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            color: const Color(0xFF0F0F12),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    gradient: LinearGradient(
+                                      colors: activeFlagColors.map((color) => color.withOpacity(0.18)).toList(),
+                                      begin: Alignment.topLeft, end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              child: Text(item['flag'] as String, style: const TextStyle(fontSize: 34)),
-                            ),
-                            const SizedBox(height: 8),
-                            Text((item['name'] as String).toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
-                          ],
+                              Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(item['flag'] as String, style: const TextStyle(fontSize: 34)),
+                                    const SizedBox(height: 10),
+                                    // 🎯 FIXED WEIGHT PARAMETER: Changed invalid 'FontWeight.black' to type-safe 'FontWeight.w900'
+                                    Text(
+                                      (item['name'] as String).toUpperCase(),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8, shadows: [Shadow(blurRadius: 4, color: Colors.black, offset: Offset(0, 1))]),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
