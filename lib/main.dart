@@ -1219,7 +1219,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25 (PART 2)
-// MARQUEE SUBTITLES TICKER & ACTION BUTTON DECKS
+// MARQUEE SUBTITLES TICKER & PLATFORM ROW WRAPPER
 // ==========================================
                               Positioned(
                                 bottom: 24, left: 0, right: 0,
@@ -1235,9 +1235,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                       ),
                       const Text("SESSION COMPLETED!", style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
                       const SizedBox(height: 6),
-                      const Text("TAP A PLATFORM TOKEN BELOW TO PUBLISH YOUR COMP", style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-                      const SizedBox(height: 24),
-                      _buildSocialPublishTokenLaneTiles(),
+                      const Text("SHARE UNTO OFFICIAL SOCIAL NETWORKS:", style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                      const SizedBox(height: 16),
+                      // 🎯 SIDE-BY-SIDE PLACEMENT: Links directly onto your new single horizontal platform row component
+                      _buildOfficialSocialPublishPlatformRow(),
                       const SizedBox(height: 28),
                       _buildReviewDashboardActionControls(),
                     ],
@@ -1290,51 +1291,64 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 24 OF 25
-// TYPE-SAFE SOCIAL MEDIA GRID CANVAS
+// SIDE-BY-SIDE OFFICIAL SOCIAL BUTTON DECK ROWS
 // ==========================================
-  Widget _buildSocialPublishTokenLaneTiles() {
-    final List<Map<String, dynamic>> socialPlatforms = [
-      {'name': 'TikTok', 'icon': Icons.music_note, 'color': const Color(0xFF000000), 'border': const Color(0xFF00f2fe)},
-      {'name': 'Reels', 'icon': Icons.video_library, 'color': const Color(0xFFE1306C), 'border': Colors.black},
-      {'name': 'Shorts', 'icon': Icons.play_arrow, 'color': const Color(0xFFFF0000), 'border': Colors.black},
-      {'name': 'WhatsApp', 'icon': Icons.chat, 'color': const Color(0xFF25D366), 'border': Colors.black},
+  Widget _buildOfficialSocialPublishPlatformRow() {
+    // Official branding palette array mappings
+    final List<Map<String, dynamic>> officialPlatformsList = [
+      {'name': 'TikTok', 'icon': Icons.music_note, 'color': const Color(0xFF000000), 'border': const Color(0xFF00F2FE), 'url': 'https://tiktok.com'},
+      {'name': 'Shorts', 'icon': Icons.play_arrow, 'color': const Color(0xFFFF0000), 'border': Colors.black, 'url': 'https://youtube.com'},
+      {'name': 'Reels', 'icon': Icons.video_library, 'color': const Color(0xFFE1306C), 'border': Colors.black, 'url': 'https://instagram.com'},
+      {'name': 'FB', 'icon': Icons.facebook, 'color': const Color(0xFF1877F2), 'border': Colors.black, 'url': 'https://facebook.com'},
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: socialPlatforms.length,
-      // 🎯 FIXED: Changed custom template text delegate to native Flutter Sliver Grid definitions
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 2.1,
-      ),
-      itemBuilder: (context, index) {
-        final platform = socialPlatforms[index];
-        return Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF0F0F12),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: platform['border'] as Color, width: 1.5),
-          ),
-          child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: platform['color'] as Color,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              elevation: 0,
+    final String targetGameShareUrl = Uri.encodeComponent("https://github.io");
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: officialPlatformsList.map((platform) {
+        return Expanded(
+          child: Container(
+            height: 48,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: platform['border'] as Color, width: 1.5),
+              boxShadow: [
+                BoxShadow(color: (platform['color'] as Color).withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))
+              ],
             ),
-            onPressed: () {},
-            icon: Icon(platform['icon'] as IconData, size: 18),
-            label: Text(
-              (platform['name'] as String).toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: platform['color'] as Color,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                elevation: 0,
+              ),
+              onPressed: () {
+                // Official web redirect launch trigger passes target app paths safely
+                String targetLinkEndpoint = platform['url'] as String;
+                if (platform['name'] == 'FB') {
+                  targetLinkEndpoint = "$targetLinkEndpoint$targetGameShareUrl";
+                }
+                html.window.open(targetLinkEndpoint, '_blank');
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(platform['icon'] as IconData, size: 16),
+                  const SizedBox(height: 2),
+                  Text(
+                    (platform['name'] as String).toUpperCase(),
+                    style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  ),
+                ],
+              ),
             ),
           ),
         );
-      },
+      }).toList(),
     );
   }
 
