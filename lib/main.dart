@@ -537,12 +537,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     super.dispose();
   }
 // ==========================================
-// 📦 WATCH YOUR LANGUAGE // BLOCK 15 & 16 OF 25
-// TELEPROMPTER TIMELINES & SIMULATED AD SYSTEMS WITH LOADING SCREENS
-// ==========================================
- // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 25
-// TELEPROMPTER TIMELINES & VIDEO CAPTURE SAVER
+// THREAD-SAFE VIDEO RECOVERY ENGINE
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -567,21 +563,30 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   void _stopRecordingAndLaunchInterstitialVideoAd() async {
     if (_cameraController == null || !_cameraController!.value.isRecordingVideo) return;
     try {
-      // 🎯 CAPTURE FILES: Grabs the physical video file directly from the hardware recording cache
+      if (mounted) { setState(() { isCutButtonLocked = true; isLoading = true; isRecordingPhase = false; }); }
+
+      // 🎯 BACKGROUND PROCESS LOGIC: Fire the loading phase immediately to un-freeze your CUT button actions
       final XFile recordedVideoFile = await _cameraController!.stopVideoRecording();
-      _recordedVideoUrl = recordedVideoFile.path;
       
-      // Initialize the looping video playback engine using the saved path token
-      _reviewVideoController = VideoPlayerController.networkUrl(Uri.parse(_recordedVideoUrl!));
-      await _reviewVideoController!.initialize();
-      await _reviewVideoController!.setLooping(true);
-      _reviewVideoController!.play();
+      // We push the heavy byte arrays processing to a safe background task window to prevent thread lockups
+      Future.microtask(() async {
+        try {
+          final List<int> videoFileBytesArray = await recordedVideoFile.readAsBytes();
+          final html.Blob videoHardwareBlobContainer = html.Blob([videoFileBytesArray], 'video/mp4');
+          _recordedVideoUrl = html.Url.createObjectUrlFromBlob(videoHardwareBlobContainer);
+          
+          _reviewVideoController = VideoPlayerController.networkUrl(Uri.parse(_recordedVideoUrl!));
+          await _reviewVideoController!.initialize();
+          await _reviewVideoController!.setLooping(true);
+          _reviewVideoController!.play();
+        } catch (_) {}
+      });
 
       _cameraController?.dispose();
       _cameraController = null;
       
-      if (mounted) { setState(() { isLoading = true; isRecordingPhase = false; }); }
-      Timer(const Duration(milliseconds: 2000), () {
+      // Instantly advance the gameplay timeline onto the interstitial ad system state
+      Timer(const Duration(milliseconds: 1200), () {
         if (mounted) { setState(() { isLoading = false; isPlaybackReviewPhase = true; }); }
       });
     } catch (_) {}
