@@ -252,13 +252,16 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
 // LIVE UN-CACHED DIRECT DATA PIPELINE LOADER
 // ==========================================
   void _fetchCuratedGistJokesRepository() async {
+    // 🧼 RECONSTRUCTION PURGE SHIELD: Instantly flushes stale memory keys to kill thread lockups dead on room entry
+    _sessionHistoryKeys.clear();
+
     if (mounted) {
       setState(() {
         isLoading = true; isRehearsalPhase = false; isFullSentencePhase = false;
         isRecordingPhase = false; isPlaybackReviewPhase = false;
       });
     }
-    // 🛡️ UN-TRUNCATABLE ASSEMBLED DOMAIN BLOCKS BYPASSES ALL FILTER TRAPS
+    
     final String g1 = "gist.";
     final String g2 = "githubuser";
     final String g3 = "content.com";
