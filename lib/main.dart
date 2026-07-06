@@ -89,7 +89,7 @@ Widget _buildAdMobPlaceholderBannerUnit(String contextPlacementLabel) {
 }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCKS 3, 4, 5 & 6 OF 25
-// UNIFIED MASTER FLAG SELECTOR DASHBOARD CANVAS
+// UNIFIED MASTER CANVAS WITH LIVE GRADIENT TILES
 // ==========================================
 class LanguageSelectorScreen extends StatelessWidget {
   final List<CameraDescription> cameras;
@@ -117,7 +117,6 @@ class LanguageSelectorScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 32),
-              // 🎯 INTEGRATED BRAND LOGO COMPONENT
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -135,7 +134,7 @@ class LanguageSelectorScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 40),
-              // 🎯 INTEGRATED FLAG SELECTOR GRID VIEW
+              // 🎯 RESTORED HOMEPAGE GRADIENT TILES
               Expanded(
                 child: GridView.builder(
                   itemCount: languageGridList.length,
@@ -143,6 +142,7 @@ class LanguageSelectorScreen extends StatelessWidget {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: 0.85),
                   itemBuilder: (context, index) {
                     final item = languageGridList[index];
+                    final List<Color> activeFlagColors = item['colors'] as List<Color>;
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => GameLoopScreen(cameras: cameras, languageName: item['name'] as String)));
@@ -152,7 +152,14 @@ class LanguageSelectorScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(item['flag'] as String, style: const TextStyle(fontSize: 34)),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(colors: activeFlagColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(item['flag'] as String, style: const TextStyle(fontSize: 34)),
+                            ),
                             const SizedBox(height: 8),
                             Text((item['name'] as String).toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
                           ],
@@ -170,7 +177,6 @@ class LanguageSelectorScreen extends StatelessWidget {
   }
 }
 
-// 🎯 INTEGRATED PRIMARY GAMEPLAY ENGINE ROOM CONTROLLER CLASS LINK
 class GameLoopScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
   final String languageName;
@@ -625,13 +631,27 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ),
     );
   }
-
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 17 OF 25
-// REHEARSAL FULL-VIEWPORT EDGE SCAFFOLD WRAPPER
+// DYNAMIC FLAG-COLOR REHEARSAL EDGE SCAFFOLD WRAPPER
 // ==========================================
   Widget _buildWordByWordRehearsalScreen() {
-    final List<Color> fallbackColors = [const Color(0xFFFF0000), const Color(0xFFFFCC00)];
+    // 🎯 NATIONAL COLOR LOOKUP MATRIX: Safely replicates room color tracks directly inside the rehearsal layout engine
+    final List<Map<String, dynamic>> countryGridMap = [
+      {'name': 'Spanish', 'colors': [const Color(0xFFFF0000), const Color(0xFFFFCC00), const Color(0xFFFF0000)]},
+      {'name': 'French', 'colors': [const Color(0xFF0055A5), const Color(0xFFFFFFFF), const Color(0xFFEF4135)]},
+      {'name': 'German', 'colors': [const Color(0xFF000000), const Color(0xFFFF0000), const Color(0xFFFFCC00)]},
+      {'name': 'Italian', 'colors': [const Color(0xFF009246), const Color(0xFFFFFFFF), const Color(0xFFCE2B37)]},
+      {'name': 'Japanese', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFBC002D), const Color(0xFFFFFFFF)]},
+      {'name': 'Portuguese', 'colors': [const Color(0xFF006600), const Color(0xFFFF0000)]},
+      {'name': 'Dutch', 'colors': [const Color(0xFFAE1C28), const Color(0xFFFFFFFF), const Color(0xFF21468B)]},
+      {'name': 'Swedish', 'colors': [const Color(0xFF006AA7), const Color(0xFFFECC00)]},
+      {'name': 'Korean', 'colors': [const Color(0xFFFFFFFF), const Color(0xFFCD2E3A), const Color(0xFF0047A0)]},
+    ];
+    
+    final Map<String, dynamic> activeLanguageData = countryGridMap.firstWhere((element) => element['name'] == widget.languageName, orElse: () => countryGridMap.first);
+    final List<Color> dynamicFlagColors = activeLanguageData['colors'] as List<Color>;
+
     final String activeCueWord = _currentFlashcardWord.isNotEmpty && currentWordIndex < _currentFlashcardWord.length
         ? _currentFlashcardWord[currentWordIndex]
         : "LOADING...";
@@ -646,7 +666,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
               padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
               child: _buildAdMobPlaceholderBannerUnit("TOP REHEARSAL BANNER AD"),
             ),
-            _buildCenterCueCardBlock(fallbackColors, activeCueWord, flagIcon),
+            // 🎯 FIXED PASSTHROUGH: Sends the actual custom national flag colors straight to your cue card button layouts
+            _buildCenterCueCardBlock(dynamicFlagColors, activeCueWord, flagIcon),
             Padding(
               padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
               child: _buildAdMobPlaceholderBannerUnit("BOTTOM REHEARSAL BANNER AD"),
@@ -656,6 +677,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       ),
     );
   }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 18 OF 25 (PART 1)
 // ENHANCED BRAND LOGO PROFILE & RESTORED ROOM FLAGS
