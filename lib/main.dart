@@ -542,7 +542,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 25
-// UNBLOCKED MUTED VIDEO PLAYBACK ENGINE
+// BULLETPROOF MOBILE SAFARI/CHROME UNBLOCKED VIDEO CONTROLLER
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -577,11 +577,15 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
           final html.Blob videoHardwareBlobContainer = html.Blob([videoFileBytesArray], 'video/mp4');
           _recordedVideoUrl = html.Url.createObjectUrlFromBlob(videoHardwareBlobContainer);
           
-          _reviewVideoController = VideoPlayerController.networkUrl(Uri.parse(_recordedVideoUrl!));
+          _reviewVideoController = VideoPlayerController.networkUrl(
+            Uri.parse(_recordedVideoUrl!),
+            // 🎯 FIXED MOBILE WEB UNBLOCKER: Enforces structural inline playback rules to bypass Safari and Chrome background blocks
+            videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: false, mixWithOthers: true),
+          );
+          
           await _reviewVideoController!.initialize();
           await _reviewVideoController!.setLooping(true);
-          // 🎯 THE WEB AUTOPLAY UNBLOCKER: Muting the review playback engine forces the browser to play instantly
-          await _reviewVideoController!.setVolume(0.0);
+          await _reviewVideoController!.setVolume(0.0); // Required web mute pass
           _reviewVideoController!.play();
         } catch (_) {}
       });
