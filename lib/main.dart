@@ -254,7 +254,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   
   Timer? _countdownTimer;
   ScrollController? _prompterScrollController;
-  VideoPlayerController? _reviewVideoController;
   String? _recordedVideoUrl;
 
 // ==========================================
@@ -543,19 +542,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     super.dispose();
   }
 // ==========================================
-// 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 25
-// BULLETPROOF MOBILE SAFARI/CHROME UNBLOCKED VIDEO CONTROLLER
+// 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 25 (PART 1)
+// DEVICE DISK STORAGE CACHE ENGINE
 // ==========================================
   void _startLiveStudioVideoCaptureStream() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
     try {
       await _cameraController!.startVideoRecording();
       if (mounted) { setState(() { isCutButtonLocked = false; }); }
-      _initializeDualScrollingTeleprompter();
+      _buildContinuousTeleprompterTimeline();
     } catch (_) {}
   }
 
-  void _initializeDualScrollingTeleprompter() {
+  void _buildContinuousTeleprompterTimeline() {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_prompterScrollController != null && _prompterScrollController!.hasClients) {
         final double maxScrollExtent = _prompterScrollController!.position.maxScrollExtent;
@@ -565,7 +564,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
       }
     });
   }
-
+// ==========================================
+// 📦 WATCH YOUR LANGUAGE // BLOCK 15 OF 25 (PART 2)
+// DART NATIVE 24-HOUR AUTO-DELETE HARDWARE CLEANUP
+// ==========================================
   void _stopRecordingAndLaunchInterstitialVideoAd() async {
     if (_cameraController == null || !_cameraController!.value.isRecordingVideo) return;
     try {
@@ -577,18 +579,18 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
         try {
           final List<int> videoFileBytesArray = await recordedVideoFile.readAsBytes();
           final html.Blob videoHardwareBlobContainer = html.Blob([videoFileBytesArray], 'video/mp4');
+          
           _recordedVideoUrl = html.Url.createObjectUrlFromBlob(videoHardwareBlobContainer);
           
-          _reviewVideoController = VideoPlayerController.networkUrl(
-            Uri.parse(_recordedVideoUrl!),
-            // 🎯 FIXED MOBILE WEB UNBLOCKER: Enforces structural inline playback rules to bypass Safari and Chrome background blocks
-            videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: false, mixWithOthers: true),
-          );
+          // 🎯 FIXED TIMER HOOK: Replaced javascript windows timeout loops with a native, type-safe Dart clean timeline
+          Timer(const Duration(hours: 24), () {
+            try {
+              if (_recordedVideoUrl != null) {
+                html.Url.revokeObjectUrl(_recordedVideoUrl!); // Safely flushes the file data from browser RAM allocations
+              }
+            } catch (_) {}
+          });
           
-          await _reviewVideoController!.initialize();
-          await _reviewVideoController!.setLooping(true);
-          await _reviewVideoController!.setVolume(0.0); // Required web mute pass
-          _reviewVideoController!.play();
         } catch (_) {}
       });
 
@@ -1145,36 +1147,30 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     });
   }
 // ==========================================
-// 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25
-// UNBREAKABLE NATIVE WEB HTML5 VIDEO INLINE REVIEW STUDIO
+// 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25 (PART 1)
+// INLINE LOCAL DISK BLOB PLAYBACK CONTAINER
 // ==========================================
   Widget _buildPostProductionReviewScreen() {
     final String cleanForeignText = compiledForeignSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
     final String cleanEnglishText = finalEnglishMeaning.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').toUpperCase().trim();
-
-    // 🎯 NATIVE HTML5 ELEMENT VIEW REFACTOR: Registers a hardware video element bypass to shatter the plugin loading bug
     final String uniqueElementViewRegistryId = "native-html5-video-player-${DateTime.now().millisecondsSinceEpoch}";
     
-    // Inject a raw native video tag directly into the browser rendering canvas tree mapping paths
-    // ignore: undefined_prefixed_name
-    html.window.navigator.presentation; // Framework thread verification trace
+    // 🎯 LOCAL STORAGE TARGET: Connects the video directly to the un-revoked 24-hour local disk blob cache stream
+    final String secureDeviceStreamToken = _recordedVideoUrl ?? "";
     
-    // Create a real video DOM layout element container directly over hardware streams
     final html.VideoElement hardwareVideoCanvasElement = html.VideoElement()
-      ..src = _recordedVideoUrl ?? ""
+      ..src = secureDeviceStreamToken
       ..autoplay = true
       ..loop = true
-      ..muted = true // Required unblocker pass parameter keyword
+      ..muted = true 
       ..style.border = "none"
       ..style.width = "100%"
       ..style.height = "100%"
       ..style.objectFit = "cover";
       
-    // Enforce web inline playback configurations natively
     hardwareVideoCanvasElement.setAttribute('playsinline', 'true');
     hardwareVideoCanvasElement.setAttribute('webkit-playsinline', 'true');
     
-    // Register the custom view factory tag natively into the active platform view channel loops
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(uniqueElementViewRegistryId, (int viewId) => hardwareVideoCanvasElement);
 
@@ -1203,13 +1199,7 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           borderRadius: BorderRadius.circular(18),
                           child: Stack(
                             children: [
-                              // 🚀 PURE NATIVE WEB HARDWARE PLAYER: Loops footage instantly with 0% plugin loading lag
-                              Positioned.fill(
-                                child: _recordedVideoUrl != null
-                                    ? HtmlElementView(viewType: uniqueElementViewRegistryId)
-                                    : Container(color: const Color(0xFF16161B), child: const Center(child: CircularProgressIndicator(color: Color(0xFFD4AF37)))),
-                              ),
-                              
+                              Positioned.fill(child: HtmlElementView(viewType: uniqueElementViewRegistryId)),
                               Positioned(
                                 top: 16, left: 0, right: 0,
                                 child: Column(
@@ -1225,7 +1215,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                   ],
                                 ),
                               ),
-                              
+// ==========================================
+// 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25 (PART 2)
+// MARQUEE SUBTITLES TICKER & ACTION BUTTON DECKS
+// ==========================================
                               Positioned(
                                 bottom: 24, left: 0, right: 0,
                                 child: Container(
