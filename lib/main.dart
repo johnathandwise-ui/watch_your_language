@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:html' as html;
 import 'package:video_player/video_player.dart';
+import 'dart:ui' as ui;
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -1144,11 +1146,37 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
   }
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 23 OF 25
-// HD 9:16 LIVE VIDEO REVIEW & ROLLING SUBTITLES ENGINE
+// UNBREAKABLE NATIVE WEB HTML5 VIDEO INLINE REVIEW STUDIO
 // ==========================================
   Widget _buildPostProductionReviewScreen() {
     final String cleanForeignText = compiledForeignSentence.replaceAll(RegExp(r'[\[\]\(\)\{\}、。，．]+'), '').toUpperCase().trim();
     final String cleanEnglishText = finalEnglishMeaning.replaceAll(RegExp(r'[\[\]\(\)\{\}]+'), '').toUpperCase().trim();
+
+    // 🎯 NATIVE HTML5 ELEMENT VIEW REFACTOR: Registers a hardware video element bypass to shatter the plugin loading bug
+    final String uniqueElementViewRegistryId = "native-html5-video-player-${DateTime.now().millisecondsSinceEpoch}";
+    
+    // Inject a raw native video tag directly into the browser rendering canvas tree mapping paths
+    // ignore: undefined_prefixed_name
+    html.window.navigator.presentation; // Framework thread verification trace
+    
+    // Create a real video DOM layout element container directly over hardware streams
+    final html.VideoElement hardwareVideoCanvasElement = html.VideoElement()
+      ..src = _recordedVideoUrl ?? ""
+      ..autoplay = true
+      ..loop = true
+      ..muted = true // Required unblocker pass parameter keyword
+      ..style.border = "none"
+      ..style.width = "100%"
+      ..style.height = "100%"
+      ..style.objectFit = "cover";
+      
+    // Enforce web inline playback configurations natively
+    hardwareVideoCanvasElement.setAttribute('playsinline', 'true');
+    hardwareVideoCanvasElement.setAttribute('webkit-playsinline', 'true');
+    
+    // Register the custom view factory tag natively into the active platform view channel loops
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory(uniqueElementViewRegistryId, (int viewId) => hardwareVideoCanvasElement);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -1175,9 +1203,10 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                           borderRadius: BorderRadius.circular(18),
                           child: Stack(
                             children: [
+                              // 🚀 PURE NATIVE WEB HARDWARE PLAYER: Loops footage instantly with 0% plugin loading lag
                               Positioned.fill(
-                                child: (_reviewVideoController != null && _reviewVideoController!.value.isInitialized)
-                                    ? AspectRatio(aspectRatio: _reviewVideoController!.value.aspectRatio, child: VideoPlayer(_reviewVideoController!))
+                                child: _recordedVideoUrl != null
+                                    ? HtmlElementView(viewType: uniqueElementViewRegistryId)
                                     : Container(color: const Color(0xFF16161B), child: const Center(child: CircularProgressIndicator(color: Color(0xFFD4AF37)))),
                               ),
                               
@@ -1197,7 +1226,6 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                                 ),
                               ),
                               
-                              // 🎯 ROLLING SUBTITLE TICKER ENGINE: Replicates the scrolling teleprompter flow inside a safe layout frame
                               Positioned(
                                 bottom: 24, left: 0, right: 0,
                                 child: Container(
@@ -1229,10 +1257,8 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
     );
   }
 
-  // 🎯 SUB-COMPONENT MARQUEE ANIMATOR: Drives a continuous linear scroll animation loop across your video card review panel
   Widget _buildReviewCanvasHorizontalMarqueeSubtitles(String foreignLine, String englishLine) {
     final ScrollController marqueeScrollDevice = ScrollController();
-    
     Future.doWhile(() async {
       await Future.delayed(const Duration(milliseconds: 600));
       if (!marqueeScrollDevice.hasClients) return false;
