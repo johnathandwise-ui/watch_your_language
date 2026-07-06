@@ -785,7 +785,12 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14), 
                   child: Stack(children: [
-                    Positioned.fill(child: (_cameraController == null || !_cameraController!.value.isInitialized) ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber))) : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!))),
+                    // 🎯 HARD TYPE-SAFETY GUARD: Checking against null explicitly checks initialization status to prevent page selection freezing entirely
+                    Positioned.fill(
+                      child: (_cameraController == null || !_cameraController!.value.isInitialized) 
+                          ? Container(color: const Color(0xFF0F0F12), child: const Center(child: CircularProgressIndicator(color: Colors.amber))) 
+                          : AspectRatio(aspectRatio: _cameraController!.value.aspectRatio, child: CameraPreview(_cameraController!)),
+                    ),
                     
                     if (!isCountdownRunning)
                       Positioned(
@@ -799,27 +804,19 @@ class _GameLoopScreenState extends State<GameLoopScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  // 🏢 LEAD SPACER GAP (Gives players room to focus)
                                   const SizedBox(width: 240),
-                                  // 🏢 SELECTED COUNTRY ROOM ROOM FLAG
                                   Text(activeFlagIcon, style: const TextStyle(fontSize: 26)),
-                                  // 🏢 SECOND GAP SEPARATOR
                                   const SizedBox(width: 48),
-                                  // 🏢 MULTI-COLOR CONTINUOUS TEXT BLOCK LAYOUT WRAPPER
                                   RichText(
                                     text: TextSpan(
                                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.8),
                                       children: [
-                                        // 🎯 Foreign Challenge Sentence in Pure White
                                         TextSpan(text: "$cleanForeignText    ", style: const TextStyle(color: Colors.white)),
-                                        // 🎯 Middle Splitter Transition Marker
                                         TextSpan(text: " ➔  ", style: TextStyle(color: Colors.amber.shade400)),
-                                        // 🎯 Core English Translation Meaning in Rich Yellow
                                         TextSpan(text: "($cleanEnglishText)", style: TextStyle(color: Colors.amber.shade400)),
                                       ],
                                     ),
                                   ),
-                                  // 🏢 FINAL SPACER TRAILING GAP (Guarantees text fully rolls completely off the screen)
                                   const SizedBox(width: 440),
                                 ],
                               ),
