@@ -1,6 +1,6 @@
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 1 OF 25
-// NATIVE CORE HARDWARE LAYOUT IMPORTS
+// HARD HARDWARE VERSION BUMP ENTRY ENGINE (FORCE REWRITE)
 // ==========================================
 import 'dart:async';
 import 'dart:convert';
@@ -11,7 +11,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:html' as html;
 import 'package:video_player/video_player.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +27,11 @@ class WatchYourLanguageApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 🎯 VERSION LOCK BUMP: Upgraded build string forces internal device cache engines to purge completely
+    final String forceUniqueCacheBusterKey = "v2.0.4_production_${DateTime.now().millisecondsSinceEpoch}";
+
     return MaterialApp(
+      key: ValueKey(forceUniqueCacheBusterKey),
       title: 'Watch Your Language',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
@@ -39,6 +42,7 @@ class WatchYourLanguageApp extends StatelessWidget {
     );
   }
 }
+
 // ==========================================
 // 📦 WATCH YOUR LANGUAGE // BLOCK 2 OF 25
 // SIMULATED ADMOB BANNER UNIT DECK LAYOUTS
